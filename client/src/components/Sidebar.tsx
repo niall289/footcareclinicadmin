@@ -33,7 +33,9 @@ export default function Sidebar({ className, user, onClose }: SidebarProps) {
           title: "Logged out",
           description: "You have been successfully logged out.",
         });
-        setLocation('/');
+        
+        // Force reload to clear any cached state and redirect to login
+        window.location.href = "/login";
       }
     } catch (error) {
       console.error('Logout error:', error);
