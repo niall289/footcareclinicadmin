@@ -148,17 +148,72 @@ export default function ChatResults() {
         </div>
 
         {/* Tabs for filtering results */}
-        <Card className="mb-6">
-          <CardHeader className="pb-2">
-            <CardTitle>Response Categories</CardTitle>
+        <Card className="mb-6 border-l-4 border-l-[hsl(186,100%,30%)]">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center">
+                <span className="mr-2">📊</span>
+                Response Categories
+              </CardTitle>
+              <div className="flex items-center text-xs text-neutral-500 dark:text-neutral-400 bg-[hsl(186,76%,97%)] dark:bg-neutral-700 px-3 py-1 rounded-full">
+                <span className="mr-1">💡</span>
+                Filter by assessment status
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
+            {/* Category explanations */}
+            <div className="mb-4 p-4 bg-gradient-to-r from-[hsl(186,76%,97%)] to-white dark:from-neutral-800 dark:to-neutral-700 rounded-lg border border-[hsl(186,76%,90%)] dark:border-neutral-600">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <div className="flex items-start space-x-2">
+                  <div className="w-2 h-2 bg-neutral-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <div>
+                    <span className="font-medium text-neutral-700 dark:text-neutral-300">All Responses:</span>
+                    <p className="text-neutral-600 dark:text-neutral-400 mt-0.5">Complete overview of all patient assessments</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <div>
+                    <span className="font-medium text-neutral-700 dark:text-neutral-300">Completed:</span>
+                    <p className="text-neutral-600 dark:text-neutral-400 mt-0.5">Finished assessments ready for analysis</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <div>
+                    <span className="font-medium text-neutral-700 dark:text-neutral-300">In Progress:</span>
+                    <p className="text-neutral-600 dark:text-neutral-400 mt-0.5">Patients who need follow-up to complete</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="w-2 h-2 bg-red-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <div>
+                    <span className="font-medium text-neutral-700 dark:text-neutral-300">Flagged:</span>
+                    <p className="text-neutral-600 dark:text-neutral-400 mt-0.5">Cases requiring immediate attention</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <Tabs defaultValue="all" value={activeTab} onValueChange={handleTabChange}>
-              <TabsList className="grid grid-cols-4 mb-4">
-                <TabsTrigger value="all">All Responses</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-                <TabsTrigger value="in-progress">In Progress</TabsTrigger>
-                <TabsTrigger value="flagged">Flagged</TabsTrigger>
+              <TabsList className="grid grid-cols-4 mb-4 bg-white dark:bg-neutral-800 border border-[hsl(186,76%,90%)] dark:border-neutral-600">
+                <TabsTrigger value="all" className="data-[state=active]:bg-[hsl(186,100%,30%)] data-[state=active]:text-white">
+                  <span className="mr-1">📋</span>
+                  All Responses
+                </TabsTrigger>
+                <TabsTrigger value="completed" className="data-[state=active]:bg-green-500 data-[state=active]:text-white">
+                  <span className="mr-1">✅</span>
+                  Completed
+                </TabsTrigger>
+                <TabsTrigger value="in-progress" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                  <span className="mr-1">⏳</span>
+                  In Progress
+                </TabsTrigger>
+                <TabsTrigger value="flagged" className="data-[state=active]:bg-red-500 data-[state=active]:text-white">
+                  <span className="mr-1">🚩</span>
+                  Flagged
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value={activeTab}>
