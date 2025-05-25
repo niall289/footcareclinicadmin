@@ -52,10 +52,10 @@ export default function Sidebar({ className, user, onClose }: SidebarProps) {
   };
 
   const navigation = [
-    { name: "Dashboard", href: "/", icon: "ri-dashboard-line" },
-    { name: "Patients", href: "/patients", icon: "ri-user-3-line" },
-    { name: "Chat Results", href: "/chat-results", icon: "ri-chat-3-line" },
-    { name: "Analytics", href: "/analytics", icon: "ri-bar-chart-box-line" },
+    { name: "Dashboard", href: "/", icon: "ri-dashboard-3-line", emoji: "🩺" },
+    { name: "Patients", href: "/patients", icon: "ri-user-heart-line", emoji: "👥" },
+    { name: "Chat Results", href: "/chat-results", icon: "ri-chat-check-line", emoji: "💬" },
+    { name: "Analytics", href: "/analytics", icon: "ri-line-chart-line", emoji: "📊" },
   ];
 
   return (
@@ -107,7 +107,9 @@ export default function Sidebar({ className, user, onClose }: SidebarProps) {
                       ? "bg-white/20" 
                       : "bg-[hsl(186,76%,95%)] dark:bg-neutral-600 group-hover:bg-[hsl(186,100%,30%)] group-hover:text-white"
                   )}>
-                    <i className={cn(item.icon, "text-lg", isActive ? "text-white" : "text-[hsl(186,100%,30%)] group-hover:text-white")} />
+                    <span className={cn("text-lg", isActive ? "text-white" : "group-hover:text-white")}>
+                      {item.emoji}
+                    </span>
                   </div>
                   <span className="font-medium">{item.name}</span>
                   {isActive && (
