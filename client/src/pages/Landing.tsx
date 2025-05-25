@@ -127,52 +127,48 @@ export default function Landing() {
         </section>
         
         {/* Features section */}
-        <section className="w-full py-16 bg-white dark:bg-neutral-800">
+        <section className="w-full py-12 bg-white dark:bg-neutral-800">
           <div className="container mx-auto px-4">
-            <h3 className="text-2xl font-bold text-center text-neutral-900 dark:text-white mb-12">
-              Powerful Tools for Healthcare Professionals
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center mb-4">
-                    <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-500">
-                      <i className="ri-dashboard-line text-2xl" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="text-center">
+                    <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-500 mb-3">
+                      <i className="ri-dashboard-line text-xl" />
                     </div>
+                    <h4 className="text-lg font-semibold mb-2">Dashboard</h4>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                      Overview of patient interactions
+                    </p>
                   </div>
-                  <h4 className="text-xl font-semibold text-center mb-2">Intuitive Dashboard</h4>
-                  <p className="text-neutral-600 dark:text-neutral-300 text-center">
-                    Get a complete overview of patient interactions and chatbot results in a clean, easy-to-use interface.
-                  </p>
                 </CardContent>
               </Card>
               
               <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center mb-4">
-                    <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-500">
-                      <i className="ri-bar-chart-box-line text-2xl" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="text-center">
+                    <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-500 mb-3">
+                      <i className="ri-bar-chart-box-line text-xl" />
                     </div>
+                    <h4 className="text-lg font-semibold mb-2">Analytics</h4>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                      Charts and visual insights
+                    </p>
                   </div>
-                  <h4 className="text-xl font-semibold text-center mb-2">Data Visualization</h4>
-                  <p className="text-neutral-600 dark:text-neutral-300 text-center">
-                    Analyze trends and patterns with powerful charts and visual analytics tools.
-                  </p>
                 </CardContent>
               </Card>
               
               <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center mb-4">
-                    <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-500">
-                      <i className="ri-user-3-line text-2xl" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="text-center">
+                    <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-500 mb-3">
+                      <i className="ri-user-3-line text-xl" />
                     </div>
+                    <h4 className="text-lg font-semibold mb-2">Patient Data</h4>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                      Access patient responses
+                    </p>
                   </div>
-                  <h4 className="text-xl font-semibold text-center mb-2">Patient Management</h4>
-                  <p className="text-neutral-600 dark:text-neutral-300 text-center">
-                    Easily access and review individual patient responses and assessment history.
-                  </p>
                 </CardContent>
               </Card>
             </div>
