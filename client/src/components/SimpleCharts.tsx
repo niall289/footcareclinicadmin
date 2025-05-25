@@ -29,7 +29,7 @@ interface CommonConditionsChartProps {
   onLimitChange?: (limit: string) => void;
 }
 
-// Response Trends Chart Component
+// Foot Care Assessment Trends Chart Component
 export function ResponseTrendsChart({
   data,
   isLoading,
@@ -40,7 +40,10 @@ export function ResponseTrendsChart({
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Response Trends</CardTitle>
+          <CardTitle className="flex items-center">
+            <span className="mr-2">🦶</span>
+            Patient Assessment Trends
+          </CardTitle>
           <div className="flex items-center space-x-2">
             <Select defaultValue="7" value={timeRange} onValueChange={onTimeRangeChange}>
               <SelectTrigger className="w-[180px]">
@@ -65,7 +68,10 @@ export function ResponseTrendsChart({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Response Trends</CardTitle>
+        <CardTitle className="flex items-center">
+          <span className="mr-2">🦶</span>
+          Patient Assessment Trends
+        </CardTitle>
         <div className="flex items-center space-x-2">
           <Select defaultValue="7" value={timeRange} onValueChange={onTimeRangeChange}>
             <SelectTrigger className="w-[180px]">
@@ -87,7 +93,7 @@ export function ResponseTrendsChart({
           categories={["count"]}
           height={300}
           showLegend={false}
-          valueFormatter={(value) => `${value} responses`}
+          valueFormatter={(value) => `${value} assessments`}
         />
       </CardContent>
     </Card>
