@@ -29,18 +29,21 @@ export default function Landing() {
     setIsLoading(true);
     
     try {
-      // Use our custom apiRequest function
-      const data = await apiRequest("/api/login", {
+      // Use standard fetch with correct format
+      const response = await fetch("/api/login", {
         method: "POST",
-        body: JSON.stringify({ password }),
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ password }),
+        credentials: "include"
       });
       
-      if (data.success) {
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
         // Invalidate the auth query to fetch the new user data
-        await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
         toast({
           title: "Login successful",
           description: "Welcome to the Foot Care Clinic dashboard.",
