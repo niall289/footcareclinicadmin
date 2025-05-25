@@ -235,14 +235,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   };
   
-  // Bypass authentication for all API endpoints for now
-  // We'll implement proper authentication later
+  // Apply authentication for all API endpoints except webhook
   app.use((req, res, next) => {
-    // Skip authentication check for all endpoints
-    return next();
+    // The webhook endpoint doesn't require authentication
+    if (req.path === '/api/webhook/chatbot') {
+      return next();
+    }
+    
+    // Skip authentication for login endpoint
+    if (req.path === '/api/login' || req.path === '/api/auth/user') {
+      return next();
+    }
+    
+    // All other endpoints require authentication
+    return isAuthenticated(req, res, next);
   });
 
-  // Direct API endpoints - no authentication check for now
+  // Direct API endpoints - with authentication
   
   // API for getting dashboard stats
   app.get('/api/dashboard/stats', async (req, res) => {

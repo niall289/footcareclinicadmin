@@ -15,23 +15,41 @@ import Layout from "@/components/Layout";
 import PatientDetails from "@/pages/PatientDetails";
 
 function Router() {
-  // Skip authentication entirely for now
-  // This gives us immediate dashboard access
+  const { isAuthenticated, isLoading } = useAuth();
   
+  // Show authenticated routes only if the user is logged in
+  // Otherwise, show the login page
   return (
-    <Layout>
-      <Switch>
-        <Route path="/" component={Dashboard} />
-        <Route path="/patients" component={Patients} />
-        <Route path="/patients/:id">
-          {params => <PatientDetails id={parseInt(params.id)} />}
-        </Route>
-        <Route path="/chat-results" component={ChatResults} />
-        <Route path="/analytics" component={Analytics} />
-        <Route path="/login" component={Landing} />
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
+    <>
+      {isLoading ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+        </div>
+      ) : isAuthenticated ? (
+        <Layout>
+          <Switch>
+            <Route path="/" component={Dashboard} />
+            <Route path="/patients" component={Patients} />
+            <Route path="/patients/:id">
+              {params => <PatientDetails id={parseInt(params.id)} />}
+            </Route>
+            <Route path="/chat-results" component={ChatResults} />
+            <Route path="/analytics" component={Analytics} />
+            <Route component={NotFound} />
+          </Switch>
+        </Layout>
+      ) : (
+        <Switch>
+          <Route path="/login" component={Landing} />
+          <Route>
+            {() => {
+              window.location.href = "/login";
+              return null;
+            }}
+          </Route>
+        </Switch>
+      )}
+    </>
   );
 }
 
