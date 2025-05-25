@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
+import logoImage from "../assets/logo.png";
 
 export default function Landing() {
   const { toast } = useToast();
@@ -78,10 +79,13 @@ export default function Landing() {
       <div className="min-h-screen w-full flex flex-col items-center bg-neutral-50 dark:bg-neutral-900">
         {/* Navbar */}
         <header className="w-full bg-white dark:bg-neutral-800 shadow-sm py-4">
-          <div className="container mx-auto px-4 flex items-center justify-between">
+          <div className="container mx-auto px-4 flex items-center justify-center">
             <div className="flex items-center">
-              <i className="ri-footprint-line text-primary-500 text-3xl mr-2" />
-              <h1 className="text-xl font-semibold text-neutral-800 dark:text-white">Foot Care Clinic</h1>
+              <img 
+                src={logoImage} 
+                alt="FootCare Clinic Logo" 
+                className="h-12 w-auto"
+              />
             </div>
           </div>
         </header>
