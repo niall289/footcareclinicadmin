@@ -127,50 +127,21 @@ export default function Landing() {
         </section>
         
         {/* Features section */}
-        <section className="w-full py-12 bg-white dark:bg-neutral-800">
+        <section className="w-full py-8 bg-white dark:bg-neutral-800">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-              <Card>
-                <CardContent className="pt-4 pb-4">
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-500 mb-3">
-                      <i className="ri-dashboard-line text-xl" />
-                    </div>
-                    <h4 className="text-lg font-semibold mb-2">Dashboard</h4>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                      Overview of patient interactions
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-4 pb-4">
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-500 mb-3">
-                      <i className="ri-bar-chart-box-line text-xl" />
-                    </div>
-                    <h4 className="text-lg font-semibold mb-2">Analytics</h4>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                      Charts and visual insights
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-4 pb-4">
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-500 mb-3">
-                      <i className="ri-user-3-line text-xl" />
-                    </div>
-                    <h4 className="text-lg font-semibold mb-2">Patient Data</h4>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                      Access patient responses
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="flex justify-center items-center space-x-8 max-w-2xl mx-auto">
+              <div className="flex items-center space-x-2">
+                <i className="ri-dashboard-line text-primary-500 text-lg" />
+                <span className="text-sm text-neutral-600 dark:text-neutral-300">Dashboard</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <i className="ri-bar-chart-box-line text-primary-500 text-lg" />
+                <span className="text-sm text-neutral-600 dark:text-neutral-300">Analytics</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <i className="ri-user-3-line text-primary-500 text-lg" />
+                <span className="text-sm text-neutral-600 dark:text-neutral-300">Patient Data</span>
+              </div>
             </div>
           </div>
         </section>
