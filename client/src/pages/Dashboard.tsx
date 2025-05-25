@@ -65,24 +65,31 @@ export default function Dashboard() {
       </Helmet>
       
       <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        {/* Dashboard header section */}
-        <div className="md:flex md:items-center md:justify-between mb-6">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold leading-7 text-neutral-800 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight">Dashboard</h2>
-              <WebSocketStatus />
+        {/* Medical Portal Header */}
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6 mb-6">
+          <div className="md:flex md:items-center md:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[hsl(186,100%,30%)] to-[hsl(186,100%,25%)] rounded-lg shadow-sm">
+                  <span className="text-white text-xl">🩺</span>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Clinical Dashboard</h1>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">Patient Assessment & Analytics Overview</p>
+                </div>
+                <WebSocketStatus />
+              </div>
             </div>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Review patient data and chatbot interactions</p>
-          </div>
-          <div className="mt-4 flex md:ml-4 md:mt-0 space-x-2">
-            <Button variant="outline" onClick={handleExportData}>
-              <Download className="mr-2 h-4 w-4" />
-              Export Data
-            </Button>
-            <Button>
-              <Filter className="mr-2 h-4 w-4" />
-              Filter Results
-            </Button>
+            <div className="mt-4 flex md:ml-4 md:mt-0 space-x-3">
+              <Button variant="outline" onClick={handleExportData} className="border-[hsl(186,100%,30%)] text-[hsl(186,100%,30%)] hover:bg-[hsl(186,100%,30%)] hover:text-white">
+                <Download className="mr-2 h-4 w-4" />
+                Export Report
+              </Button>
+              <Button className="bg-gradient-to-r from-[hsl(186,100%,30%)] to-[hsl(186,100%,25%)] hover:from-[hsl(186,100%,25%)] hover:to-[hsl(186,100%,20%)]">
+                <Filter className="mr-2 h-4 w-4" />
+                Advanced Filters
+              </Button>
+            </div>
           </div>
         </div>
 
