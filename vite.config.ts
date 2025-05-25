@@ -4,6 +4,15 @@ import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 export default defineConfig({
+  // 👇 Tell Vite to serve from 'client'
+  root: path.resolve(import.meta.dirname, "client"),
+
+  // 👇 Add this so Vite listens on Replit's assigned port & all network interfaces
+  server: {
+    host: true,
+    port: Number(process.env.PORT) || 5000,
+  },
+
   plugins: [
     react(),
     runtimeErrorOverlay(),
@@ -16,6 +25,7 @@ export default defineConfig({
         ]
       : []),
   ],
+
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -23,8 +33,9 @@ export default defineConfig({
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
   },
-  root: path.resolve(import.meta.dirname, "client"),
+
   build: {
+    // your build settings remain unchanged
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
   },

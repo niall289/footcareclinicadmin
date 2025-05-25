@@ -71,18 +71,27 @@ export default function Layout({ children }: LayoutProps) {
               />
             </div>
           </div>
-          <div className="flex-shrink-0 h-9 w-9 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
-            {user?.profileImageUrl ? (
-              <img 
-                src={user.profileImageUrl} 
-                alt="User profile" 
-                className="h-full w-full object-cover" 
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center text-neutral-500 dark:text-neutral-300">
-                <i className="ri-user-3-line" />
-              </div>
-            )}
+          <div className="flex items-center">
+            <a 
+              href="/api/logout"
+              className="text-neutral-500 hover:text-neutral-700 dark:text-neutral-300 dark:hover:text-white mr-4"
+              title="Sign out"
+            >
+              <i className="ri-logout-box-line text-xl" />
+            </a>
+            <div className="flex-shrink-0 h-9 w-9 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
+              {user && user.profileImageUrl ? (
+                <img 
+                  src={user.profileImageUrl} 
+                  alt="User profile" 
+                  className="h-full w-full object-cover" 
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center text-neutral-500 dark:text-neutral-300">
+                  <i className="ri-user-3-line" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
