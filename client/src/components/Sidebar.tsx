@@ -20,31 +20,31 @@ export default function Sidebar({ className, user, onClose }: SidebarProps) {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
   
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('/api/logout', {
-        method: 'POST',
-      });
+  const handleLogout = () => {
+    // Create a direct link to the login page
+    const logoutLink = document.createElement('a');
+    logoutLink.href = '/login';
+    document.body.appendChild(logoutLink);
+    
+    // First do the logout request
+    fetch('/api/logout', {
+      method: 'POST',
+    }).then(() => {
+      // Then invalidate queries and show toast
+      queryClient.clear();
+      localStorage.removeItem('theme');
       
-      if (response.ok) {
-        // Invalidate auth query
-        await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-        toast({
-          title: "Logged out",
-          description: "You have been successfully logged out.",
-        });
-        
-        // Force reload to clear any cached state and redirect to login
-        window.location.href = "/login";
-      }
-    } catch (error) {
+      // Direct navigation to login page
+      logoutLink.click();
+      document.body.removeChild(logoutLink);
+    }).catch(error => {
       console.error('Logout error:', error);
       toast({
         title: "Logout failed",
         description: "An error occurred during logout. Please try again.",
         variant: "destructive",
       });
-    }
+    });
   };
 
   const toggleTheme = () => {
