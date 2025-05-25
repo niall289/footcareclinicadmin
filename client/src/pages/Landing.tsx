@@ -78,57 +78,57 @@ export default function Landing() {
       
       <div className="min-h-screen w-full flex flex-col items-center bg-neutral-50 dark:bg-neutral-900">
         {/* Navbar */}
-        <header className="w-full bg-white dark:bg-neutral-800 shadow-sm py-4">
+        <header className="w-full bg-white dark:bg-neutral-800 shadow-sm py-3">
           <div className="container mx-auto px-4 flex items-center justify-center">
             <div className="flex items-center">
               <img 
                 src={logoImage} 
                 alt="FootCare Clinic Logo" 
-                className="h-12 w-auto"
+                className="h-10 w-auto"
               />
             </div>
           </div>
         </header>
         
         {/* Hero section */}
-        <section className="flex-1 flex flex-col items-center justify-center w-full px-4 py-12">
+        <section className="flex-1 flex flex-col items-center justify-center w-full px-4 py-6">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 dark:text-white mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-neutral-900 dark:text-white mb-3">
               FootCare Clinic Chatbot Admin Portal
             </h2>
-            <p className="text-xl text-neutral-600 dark:text-neutral-300 mb-8">
+            <p className="text-lg text-neutral-600 dark:text-neutral-300 mb-6">
               Access patient chatbot results, analyze data, and improve patient care with our dedicated dashboard.
             </p>
             
             <Card className="max-w-md mx-auto shadow-xl border-0 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm">
-              <CardContent className="pt-8 pb-8 px-8">
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[hsl(186,100%,30%)] to-[hsl(186,100%,25%)] rounded-full mb-4 shadow-lg">
-                    <span className="text-white text-2xl">🔐</span>
+              <CardContent className="pt-6 pb-6 px-6">
+                <div className="text-center mb-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[hsl(186,100%,30%)] to-[hsl(186,100%,25%)] rounded-full mb-3 shadow-lg">
+                    <span className="text-white text-lg">🔐</span>
                   </div>
-                  <h3 className="text-xl font-semibold text-neutral-800 dark:text-white">Admin Access</h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">Enter your credentials to continue</p>
+                  <h3 className="text-lg font-semibold text-neutral-800 dark:text-white">Admin Access</h3>
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Enter your credentials to continue</p>
                 </div>
                 
-                <form onSubmit={handleLogin} className="space-y-6">
+                <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Input
                       type="password"
                       placeholder="Enter admin password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="text-center h-12 text-lg border-2 border-neutral-200 dark:border-neutral-600 focus:border-[hsl(186,100%,30%)] dark:focus:border-[hsl(186,100%,40%)] rounded-lg"
+                      className="text-center h-10 border-2 border-neutral-200 dark:border-neutral-600 focus:border-[hsl(186,100%,30%)] dark:focus:border-[hsl(186,100%,40%)] rounded-lg"
                     />
                   </div>
                   <Button 
                     type="submit" 
                     size="lg" 
-                    className="w-full h-12 text-lg font-medium bg-gradient-to-r from-[hsl(186,100%,30%)] to-[hsl(186,100%,25%)] hover:from-[hsl(186,100%,25%)] hover:to-[hsl(186,100%,20%)] border-0 shadow-lg" 
+                    className="w-full h-10 font-medium bg-gradient-to-r from-[hsl(186,100%,30%)] to-[hsl(186,100%,25%)] hover:from-[hsl(186,100%,25%)] hover:to-[hsl(186,100%,20%)] border-0 shadow-lg" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                         Signing In...
                       </div>
                     ) : (
@@ -142,35 +142,35 @@ export default function Landing() {
         </section>
         
         {/* Features section */}
-        <section className="w-full py-8 bg-gradient-to-r from-[hsl(186,76%,97%)] to-[hsl(186,76%,95%)] dark:from-[hsl(186,30%,18%)] dark:to-[hsl(186,30%,15%)]">
+        <section className="w-full py-4 bg-gradient-to-r from-[hsl(186,76%,97%)] to-[hsl(186,76%,95%)] dark:from-[hsl(186,30%,18%)] dark:to-[hsl(186,30%,15%)]">
           <div className="container mx-auto px-4">
-            <div className="flex flex-wrap justify-center items-center gap-6 max-w-2xl mx-auto">
-              <div className="flex items-center space-x-2 bg-white dark:bg-neutral-800 px-4 py-2 rounded-full shadow-sm">
-                <div className="w-5 h-5 bg-[hsl(186,100%,30%)] rounded-full flex items-center justify-center">
+            <div className="flex flex-wrap justify-center items-center gap-4 max-w-2xl mx-auto">
+              <div className="flex items-center space-x-2 bg-white dark:bg-neutral-800 px-3 py-1 rounded-full shadow-sm">
+                <div className="w-4 h-4 bg-[hsl(186,100%,30%)] rounded-full flex items-center justify-center">
                   <span className="text-white text-xs">📊</span>
                 </div>
-                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Dashboard</span>
+                <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">Dashboard</span>
               </div>
-              <div className="flex items-center space-x-2 bg-white dark:bg-neutral-800 px-4 py-2 rounded-full shadow-sm">
-                <div className="w-5 h-5 bg-[hsl(186,100%,30%)] rounded-full flex items-center justify-center">
+              <div className="flex items-center space-x-2 bg-white dark:bg-neutral-800 px-3 py-1 rounded-full shadow-sm">
+                <div className="w-4 h-4 bg-[hsl(186,100%,30%)] rounded-full flex items-center justify-center">
                   <span className="text-white text-xs">📈</span>
                 </div>
-                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Analytics</span>
+                <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">Analytics</span>
               </div>
-              <div className="flex items-center space-x-2 bg-white dark:bg-neutral-800 px-4 py-2 rounded-full shadow-sm">
-                <div className="w-5 h-5 bg-[hsl(186,100%,30%)] rounded-full flex items-center justify-center">
+              <div className="flex items-center space-x-2 bg-white dark:bg-neutral-800 px-3 py-1 rounded-full shadow-sm">
+                <div className="w-4 h-4 bg-[hsl(186,100%,30%)] rounded-full flex items-center justify-center">
                   <span className="text-white text-xs">👤</span>
                 </div>
-                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Patient Data</span>
+                <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">Patient Data</span>
               </div>
             </div>
           </div>
         </section>
         
         {/* Footer */}
-        <footer className="w-full bg-neutral-100 dark:bg-neutral-800/50 py-6">
+        <footer className="w-full bg-neutral-100 dark:bg-neutral-800/50 py-3">
           <div className="container mx-auto px-4 text-center">
-            <p className="text-neutral-600 dark:text-neutral-400">
+            <p className="text-xs text-neutral-600 dark:text-neutral-400">
               © {new Date().getFullYear()} Foot Care Clinic. Built by EngageIOBots.com
             </p>
           </div>
