@@ -94,7 +94,7 @@ export default function Landing() {
         <section className="flex-1 flex flex-col items-center justify-center w-full px-4 py-12">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 dark:text-white mb-4">
-              Client Portal for Foot Care Professionals
+              FootCare Clinic Chatbot Admin Portal
             </h2>
             <p className="text-xl text-neutral-600 dark:text-neutral-300 mb-8">
               Access patient chatbot results, analyze data, and improve patient care with our dedicated dashboard.
