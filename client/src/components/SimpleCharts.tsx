@@ -100,7 +100,7 @@ export function ResponseTrendsChart({
   );
 }
 
-// Common Conditions Chart Component
+// Most Common Foot Conditions Chart Component
 export function CommonConditionsChart({
   data,
   isLoading,
@@ -111,7 +111,10 @@ export function CommonConditionsChart({
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Common Conditions</CardTitle>
+          <CardTitle className="flex items-center">
+            <span className="mr-2">🩹</span>
+            Most Common Foot Conditions
+          </CardTitle>
           <div className="flex items-center space-x-2">
             <Select defaultValue="5" value={limit} onValueChange={onLimitChange}>
               <SelectTrigger className="w-[180px]">
@@ -142,7 +145,10 @@ export function CommonConditionsChart({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Common Conditions</CardTitle>
+        <CardTitle className="flex items-center">
+          <span className="mr-2">🩹</span>
+          Most Common Foot Conditions
+        </CardTitle>
         <div className="flex items-center space-x-2">
           <Select defaultValue="5" value={limit} onValueChange={onLimitChange}>
             <SelectTrigger className="w-[180px]">
