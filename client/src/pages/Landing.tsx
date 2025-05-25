@@ -179,7 +179,7 @@ export default function Landing() {
         <footer className="w-full bg-neutral-100 dark:bg-neutral-800/50 py-6">
           <div className="container mx-auto px-4 text-center">
             <p className="text-neutral-600 dark:text-neutral-400">
-              © {new Date().getFullYear()} Foot Care Clinic. All rights reserved.
+              © {new Date().getFullYear()} Foot Care Clinic. Built by EngageIOBots.com
             </p>
           </div>
         </footer>
