@@ -235,19 +235,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   };
   
-  // Apply authentication for all API endpoints except webhook
-  app.use((req, res, next) => {
-    // The webhook endpoint doesn't require authentication
-    if (req.path === '/api/webhook/chatbot') {
+  // Apply authentication only for API endpoints that need protection
+  app.use('/api', (req, res, next) => {
+    // Skip authentication for webhook endpoint
+    if (req.path === '/webhook/chatbot') {
       return next();
     }
     
-    // Skip authentication for login endpoint
-    if (req.path === '/api/login' || req.path === '/api/auth/user') {
+    // Skip authentication for login and auth check endpoints
+    if (req.path === '/login' || req.path === '/auth/user') {
       return next();
     }
     
-    // All other endpoints require authentication
+    // All other API endpoints require authentication
     return isAuthenticated(req, res, next);
   });
 
