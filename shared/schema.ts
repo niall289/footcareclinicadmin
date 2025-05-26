@@ -114,9 +114,57 @@ export const assessmentConditions = pgTable("assessment_conditions", {
   pk: primaryKey(t.assessmentId, t.conditionId),
 }));
 
+// Patient communication tables
+export const communications = pgTable("communications", {
+  id: serial("id").primaryKey(),
+  patientId: integer("patient_id").notNull().references(() => patients.id),
+  type: varchar("type", { length: 50 }).notNull(), // 'email', 'sms', 'message', 'call'
+  subject: varchar("subject", { length: 255 }),
+  message: text("message").notNull(),
+  sentBy: varchar("sent_by", { length: 100 }).notNull(), // staff member name
+  status: varchar("status", { length: 50 }).default("sent"), // 'sent', 'delivered', 'read', 'failed'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const followUps = pgTable("follow_ups", {
+  id: serial("id").primaryKey(),
+  patientId: integer("patient_id").notNull().references(() => patients.id),
+  assessmentId: integer("assessment_id").references(() => assessments.id),
+  type: varchar("type", { length: 50 }).notNull(), // 'appointment', 'call', 'check_in'
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  scheduledFor: timestamp("scheduled_for").notNull(),
+  status: varchar("status", { length: 50 }).default("pending"), // 'pending', 'completed', 'cancelled'
+  assignedTo: varchar("assigned_to", { length: 100 }),
+  createdBy: varchar("created_by", { length: 100 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Define relations
 export const patientsRelations = relations(patients, ({ many }) => ({
   assessments: many(assessments),
+  communications: many(communications),
+  followUps: many(followUps),
+}));
+
+export const communicationsRelations = relations(communications, ({ one }) => ({
+  patient: one(patients, {
+    fields: [communications.patientId],
+    references: [patients.id],
+  }),
+}));
+
+export const followUpsRelations = relations(followUps, ({ one }) => ({
+  patient: one(patients, {
+    fields: [followUps.patientId],
+    references: [patients.id],
+  }),
+  assessment: one(assessments, {
+    fields: [followUps.assessmentId],
+    references: [assessments.id],
+  }),
 }));
 
 export const clinicsRelations = relations(clinics, ({ many }) => ({
@@ -232,6 +280,32 @@ export type InsertQuestion = z.infer<typeof insertQuestionSchema>;
 export type Question = typeof questions.$inferSelect;
 export type InsertCondition = z.infer<typeof insertConditionSchema>;
 export type Condition = typeof conditions.$inferSelect;
+export const insertCommunicationSchema = createInsertSchema(communications).pick({
+  patientId: true,
+  type: true,
+  subject: true,
+  message: true,
+  sentBy: true,
+  status: true,
+});
+export const insertFollowUpSchema = createInsertSchema(followUps).pick({
+  patientId: true,
+  assessmentId: true,
+  type: true,
+  title: true,
+  description: true,
+  scheduledFor: true,
+  status: true,
+  assignedTo: true,
+  createdBy: true,
+});
+
 export type InsertClinic = z.infer<typeof insertClinicSchema>;
 export type Clinic = typeof clinics.$inferSelect;
 export type ClinicWithAssessmentCount = Clinic & { assessmentCount: number };
+export type InsertCommunication = z.infer<typeof insertCommunicationSchema>;
+export type Communication = typeof communications.$inferSelect;
+export type CommunicationWithPatient = Communication & { patient: Patient };
+export type InsertFollowUp = z.infer<typeof insertFollowUpSchema>;
+export type FollowUp = typeof followUps.$inferSelect;
+export type FollowUpWithPatient = FollowUp & { patient: Patient };
