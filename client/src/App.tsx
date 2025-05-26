@@ -10,6 +10,7 @@ import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import Patients from "@/pages/Patients";
 import ChatResults from "@/pages/ChatResults";
+import Communications from "@/pages/Communications";
 import Analytics from "@/pages/Analytics";
 import Layout from "@/components/Layout";
 import PatientDetails from "@/pages/PatientDetails";
@@ -40,6 +41,7 @@ function Router() {
           {params => <PatientDetails id={parseInt(params.id)} />}
         </Route>
         <Route path="/chat-results" component={ChatResults} />
+        <Route path="/communications" component={Communications} />
         <Route path="/analytics" component={Analytics} />
         <Route component={NotFound} />
       </Switch>

@@ -508,6 +508,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(responseData);
     } catch (error) {
       console.error('Error processing webhook:', error);
+      res.status(500).json({ message: 'Failed to process webhook data' });
+    }
+  });
+
+  // Communication routes
+  app.get('/api/communications', isAuthenticated, async (req, res) => {
+    try {
+      const communications = await storage.getCommunications();
+      res.json(communications);
+    } catch (error) {
+      console.error('Error fetching communications:', error);
+      res.status(500).json({ message: 'Failed to fetch communications' });
+    }
+  });
+
+  app.post('/api/communications', isAuthenticated, async (req, res) => {
+    try {
+      const communication = await storage.createCommunication(req.body);
+      res.json(communication);
+    } catch (error) {
+      console.error('Error creating communication:', error);
+      res.status(500).json({ message: 'Failed to create communication' });
+    }
+  });
+
+  // Follow-up routes
+  app.get('/api/followups', isAuthenticated, async (req, res) => {
+    try {
+      const followUps = await storage.getFollowUps();
+      res.json(followUps);
+    } catch (error) {
+      console.error('Error fetching follow-ups:', error);
+      res.status(500).json({ message: 'Failed to fetch follow-ups' });
+    }
+  });
+
+  app.post('/api/followups', isAuthenticated, async (req, res) => {
+    try {
+      const followUp = await storage.createFollowUp(req.body);
+      res.json(followUp);
+    } catch (error) {
+      console.error('Error creating follow-up:', error);
+      res.status(500).json({ message: 'Failed to create follow-up' });
+    }
+  });
+
+  const httpServer = createServer(app);
+  return httpServer;
       res.status(500).json({ 
         success: false, 
         message: 'Error processing webhook data' 
