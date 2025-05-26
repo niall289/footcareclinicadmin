@@ -555,8 +555,8 @@ export class DatabaseStorage implements IStorage {
     
     return result.map(row => ({
       ...row.communications,
-      patient: row.patients
-    })) as CommunicationWithPatient[];
+      patient: row.patients || null
+    })).filter(item => item.patient) as CommunicationWithPatient[];
   }
 
   async createCommunication(communicationData: InsertCommunication): Promise<Communication> {
@@ -582,8 +582,8 @@ export class DatabaseStorage implements IStorage {
     
     return result.map(row => ({
       ...row.follow_ups,
-      patient: row.patients
-    })) as FollowUpWithPatient[];
+      patient: row.patients || null
+    })).filter(item => item.patient) as FollowUpWithPatient[];
   }
 
   async createFollowUp(followUpData: InsertFollowUp): Promise<FollowUp> {
