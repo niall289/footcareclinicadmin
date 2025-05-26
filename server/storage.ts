@@ -92,6 +92,14 @@ export interface IStorage {
   updateClinic(id: number, clinic: Partial<InsertClinic>): Promise<Clinic | undefined>;
   getClinicAssessmentCounts(): Promise<ClinicWithAssessmentCount[]>;
   
+  // Communication operations
+  getCommunications(): Promise<CommunicationWithPatient[]>;
+  createCommunication(communication: InsertCommunication): Promise<Communication>;
+  
+  // Follow-up operations
+  getFollowUps(): Promise<FollowUpWithPatient[]>;
+  createFollowUp(followUp: InsertFollowUp): Promise<FollowUp>;
+
   // Dashboard data
   getCompletedAssessmentsCount(): Promise<number>;
   getWeeklyAssessmentsCount(): Promise<number>;
@@ -535,6 +543,60 @@ export class DatabaseStorage implements IStorage {
       date: new Date(date).toISOString().split('T')[0],
       count,
     }));
+  }
+
+  // Communication operations
+  async getCommunications(): Promise<CommunicationWithPatient[]> {
+    const result = await db
+      .select()
+      .from(communications)
+      .leftJoin(patients, eq(communications.patientId, patients.id))
+      .orderBy(desc(communications.createdAt));
+    
+    return result.map(row => ({
+      ...row.communications,
+      patient: row.patients
+    })) as CommunicationWithPatient[];
+  }
+
+  async createCommunication(communicationData: InsertCommunication): Promise<Communication> {
+    const [communication] = await db
+      .insert(communications)
+      .values({
+        ...communicationData,
+        status: 'sent',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return communication;
+  }
+
+  // Follow-up operations
+  async getFollowUps(): Promise<FollowUpWithPatient[]> {
+    const result = await db
+      .select()
+      .from(followUps)
+      .leftJoin(patients, eq(followUps.patientId, patients.id))
+      .orderBy(desc(followUps.scheduledFor));
+    
+    return result.map(row => ({
+      ...row.follow_ups,
+      patient: row.patients
+    })) as FollowUpWithPatient[];
+  }
+
+  async createFollowUp(followUpData: InsertFollowUp): Promise<FollowUp> {
+    const [followUp] = await db
+      .insert(followUps)
+      .values({
+        ...followUpData,
+        status: 'scheduled',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return followUp;
   }
 }
 

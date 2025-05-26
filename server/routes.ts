@@ -556,24 +556,4 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
   return httpServer;
-      res.status(500).json({ 
-        success: false, 
-        message: 'Error processing webhook data' 
-      });
-    }
-  });
-
-  // Get clinic assessment counts
-  app.get("/api/clinics/stats", async (req, res) => {
-    try {
-      const clinicStats = await storage.getClinicAssessmentCounts();
-      res.json(clinicStats);
-    } catch (error) {
-      console.error("Error fetching clinic assessment counts:", error);
-      res.status(500).json({ message: "Failed to fetch clinic statistics" });
-    }
-  });
-
-  // Return the HTTP server so it can be used by the main server
-  return httpServer;
 }
