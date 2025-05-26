@@ -45,7 +45,7 @@ interface ClinicMapProps {
 
 export default function ClinicMap({ className }: ClinicMapProps) {
   const [timeRange, setTimeRange] = useState('30days');
-  const [mapCenter, setMapCenter] = useState<[number, number]>([43.6532, -79.3832]); // Toronto by default
+  const [mapCenter, setMapCenter] = useState<[number, number]>([53.3498, -6.2603]); // Dublin, Ireland
   
   const { data: clinics, isLoading: isLoadingClinics } = useQuery({
     queryKey: ['/api/clinics'],
