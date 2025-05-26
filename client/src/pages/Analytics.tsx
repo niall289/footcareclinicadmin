@@ -313,10 +313,7 @@ export default function Analytics() {
               </TabsContent>
               
               <TabsContent value="demographics">
-                <div className="mb-6">
-                  <ClinicMap className="w-full" />
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-lg">Age Distribution</CardTitle>
@@ -370,7 +367,17 @@ export default function Analytics() {
                     </CardContent>
                   </Card>
                   
-                  <ClinicMap className="col-span-1 lg:col-span-2" />
+                  <Card className="lg:row-span-2">
+                    <CardHeader>
+                      <CardTitle className="text-lg">FootCare Clinic Locations</CardTitle>
+                      <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                        Patient assessment distribution across Dublin clinics
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <ClinicMap className="w-full" />
+                    </CardContent>
+                  </Card>
                   
                   <Card>
                     <CardHeader>
