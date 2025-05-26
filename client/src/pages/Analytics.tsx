@@ -381,16 +381,16 @@ export default function Analytics() {
                   
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Insurance Types</CardTitle>
+                      <CardTitle className="text-lg">Healthcare Coverage</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="h-[300px]">
                         <PieChart
                           data={[
-                            { name: "Private", value: 45 },
-                            { name: "Medicare", value: 32 },
-                            { name: "Medicaid", value: 15 },
-                            { name: "Uninsured", value: 8 }
+                            { name: "HSE Public", value: 52 },
+                            { name: "Private Health Insurance", value: 35 },
+                            { name: "DPS Medical Card", value: 8 },
+                            { name: "Self-Pay", value: 5 }
                           ]}
                           index="name"
                           categories={["value"]}
