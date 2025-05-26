@@ -344,6 +344,129 @@ export async function registerRoutes(app: Express): Promise<Server> {
       authenticated: true
     });
   });
+
+  // Sync patient with Cliniko
+  app.post('/api/patients/:id/cliniko-sync', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const patientId = parseInt(req.params.id);
+      if (isNaN(patientId)) {
+        return res.status(400).json({ message: 'Invalid patient ID' });
+      }
+
+      const patient = await storage.getPatientById(patientId);
+      if (!patient) {
+        return res.status(404).json({ message: 'Patient not found' });
+      }
+
+      // Check if we have Cliniko API credentials
+      if (!process.env.CLINIKO_API_KEY || !process.env.CLINIKO_SUBDOMAIN) {
+        return res.status(400).json({ 
+          message: 'Cliniko integration not configured. Please provide CLINIKO_API_KEY and CLINIKO_SUBDOMAIN environment variables.' 
+        });
+      }
+
+      // Prepare patient data for Cliniko
+      const clinikoPatientData = {
+        first_name: patient.name?.split(' ')[0] || '',
+        last_name: patient.name?.split(' ').slice(1).join(' ') || '',
+        email: patient.email,
+        phone_number: patient.phone,
+        date_of_birth: patient.dateOfBirth,
+        gender: patient.gender,
+        address_1: patient.address,
+        occupation: patient.occupation,
+        medical_alerts: patient.medicalHistory,
+        notes: `Imported from FootCare Clinic Chatbot. Assessment completed on ${patient.createdAt}`
+      };
+
+      // Cliniko API setup
+      const clinikoBaseUrl = `https://${process.env.CLINIKO_SUBDOMAIN}.cliniko.com/v1`;
+      const authHeader = Buffer.from(`${process.env.CLINIKO_API_KEY}:`).toString('base64');
+      
+      // First, try to find existing patient in Cliniko by email
+      let existingPatient = null;
+      if (patient.email) {
+        try {
+          const searchResponse = await fetch(`${clinikoBaseUrl}/patients?q=${encodeURIComponent(patient.email)}`, {
+            headers: {
+              'Authorization': `Basic ${authHeader}`,
+              'Content-Type': 'application/json',
+              'User-Agent': 'FootCare Clinic Admin Portal'
+            }
+          });
+          
+          if (searchResponse.ok) {
+            const searchData = await searchResponse.json();
+            existingPatient = searchData.patients?.find((p: any) => 
+              p.email?.toLowerCase() === patient.email?.toLowerCase()
+            );
+          }
+        } catch (searchError) {
+          console.log('Patient search failed, will create new patient:', searchError);
+        }
+      }
+
+      let result;
+      if (existingPatient) {
+        // Update existing patient
+        const updateResponse = await fetch(`${clinikoBaseUrl}/patients/${existingPatient.id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Basic ${authHeader}`,
+            'Content-Type': 'application/json',
+            'User-Agent': 'FootCare Clinic Admin Portal'
+          },
+          body: JSON.stringify({ patient: clinikoPatientData })
+        });
+
+        if (!updateResponse.ok) {
+          const errorText = await updateResponse.text();
+          throw new Error(`Cliniko update failed: ${updateResponse.statusText} - ${errorText}`);
+        }
+
+        const updateData = await updateResponse.json();
+        result = { action: 'updated', patient: updateData.patient };
+      } else {
+        // Create new patient
+        const createResponse = await fetch(`${clinikoBaseUrl}/patients`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${authHeader}`,
+            'Content-Type': 'application/json',
+            'User-Agent': 'FootCare Clinic Admin Portal'
+          },
+          body: JSON.stringify({ patient: clinikoPatientData })
+        });
+
+        if (!createResponse.ok) {
+          const errorText = await createResponse.text();
+          throw new Error(`Cliniko creation failed: ${createResponse.statusText} - ${errorText}`);
+        }
+
+        const createData = await createResponse.json();
+        result = { action: 'created', patient: createData.patient };
+      }
+
+      // Update our local patient record with Cliniko ID if available
+      if (result.patient?.id) {
+        try {
+          await storage.updatePatient(patientId, {
+            clinikoId: result.patient.id.toString()
+          });
+        } catch (updateError) {
+          console.log('Failed to update local patient with Cliniko ID:', updateError);
+          // Don't fail the whole operation for this
+        }
+      }
+
+      res.json(result);
+    } catch (error) {
+      console.error('Error syncing with Cliniko:', error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : 'Failed to sync with Cliniko' 
+      });
+    }
+  });
   
   // Webhook endpoint for chatbot integration
   app.post('/api/webhook/chatbot', async (req: Request, res: Response) => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Helmet } from "react-helmet";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
@@ -12,6 +12,7 @@ import PatientDetailsModal from "@/components/PatientDetailsModal";
 import { ArrowLeft, Download, FileBarChart, Calendar, Mail, Phone } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { apiRequest } from "@/lib/queryClient";
 
 interface PatientDetailsProps {
   id: number;
@@ -21,10 +22,37 @@ export default function PatientDetails({ id }: PatientDetailsProps) {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [selectedAssessmentId, setSelectedAssessmentId] = useState<number | null>(null);
+  const queryClient = useQueryClient();
   
   // Fetch patient details
   const { data, isLoading, error } = useQuery({
     queryKey: [`/api/patients/${id}`],
+  });
+
+  // Cliniko sync mutation
+  const clinikoSyncMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest(`/api/patients/${id}/cliniko-sync`, {
+        method: 'POST',
+      });
+    },
+    onSuccess: (result) => {
+      toast({
+        title: result.action === 'created' ? "Patient Added to Cliniko" : "Patient Synced with Cliniko",
+        description: result.action === 'created' 
+          ? `Patient ${data?.patient?.name} has been successfully added to Cliniko.`
+          : `Patient ${data?.patient?.name} has been synced with their existing Cliniko record.`,
+      });
+      // Refresh patient data to show updated Cliniko status
+      queryClient.invalidateQueries({ queryKey: [`/api/patients/${id}`] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Cliniko Sync Failed",
+        description: error.message || "Failed to sync patient with Cliniko. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
   
   // Handle error
@@ -60,6 +88,11 @@ export default function PatientDetails({ id }: PatientDetailsProps) {
       title: "Export Started",
       description: "Patient data export has been initiated.",
     });
+  };
+
+  // Handle Cliniko sync
+  const handleClinikoSync = () => {
+    clinikoSyncMutation.mutate();
   };
   
   // Format date
@@ -149,6 +182,24 @@ export default function PatientDetails({ id }: PatientDetailsProps) {
             <Button variant="outline" size="sm" onClick={handleExportData}>
               <Download className="h-4 w-4 mr-2" />
               Export Data
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleClinikoSync}
+              disabled={clinikoSyncMutation.isPending}
+            >
+              {clinikoSyncMutation.isPending ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[hsl(186,100%,30%)] mr-2"></div>
+                  Syncing...
+                </div>
+              ) : (
+                <>
+                  <i className="ri-hospital-line text-sm mr-2" />
+                  Add/Sync with Cliniko
+                </>
+              )}
             </Button>
             <Button size="sm">
               <Calendar className="h-4 w-4 mr-2" />
