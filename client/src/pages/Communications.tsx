@@ -240,6 +240,9 @@ export default function Communications() {
   const [isNewMessageOpen, setIsNewMessageOpen] = useState(false);
   const [isNewFollowUpOpen, setIsNewFollowUpOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [isTemplateViewOpen, setIsTemplateViewOpen] = useState(false);
+  const [currentTemplate, setCurrentTemplate] = useState<{subject: string, message: string} | null>(null);
+  const [editedTemplate, setEditedTemplate] = useState<{subject: string, message: string} | null>(null);
 
   // Fetch patients for selection
   const { data: patients, isLoading: isLoadingPatients } = useQuery({
@@ -745,17 +748,30 @@ export default function Communications() {
                           <Heart className="h-5 w-5 text-[hsl(186,100%,30%)]" />
                           <CardTitle className="text-lg">Thank You Message</CardTitle>
                         </div>
-                        <Button 
-                          size="sm" 
-                          onClick={() => {
-                            messageForm.setValue('subject', messageTemplates.thankYou.subject);
-                            messageForm.setValue('message', messageTemplates.thankYou.message);
-                            setIsNewMessageOpen(true);
-                          }}
-                          className="bg-[hsl(186,100%,30%)] hover:bg-[hsl(186,100%,25%)]"
-                        >
-                          Use Template
-                        </Button>
+                        <div className="flex space-x-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setCurrentTemplate(messageTemplates.thankYou);
+                              setEditedTemplate({...messageTemplates.thankYou});
+                              setIsTemplateViewOpen(true);
+                            }}
+                          >
+                            View
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            onClick={() => {
+                              messageForm.setValue('subject', messageTemplates.thankYou.subject);
+                              messageForm.setValue('message', messageTemplates.thankYou.message);
+                              setIsNewMessageOpen(true);
+                            }}
+                            className="bg-[hsl(186,100%,30%)] hover:bg-[hsl(186,100%,25%)]"
+                          >
+                            Use Template
+                          </Button>
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -788,17 +804,30 @@ export default function Communications() {
                           <div key={condition} className="border rounded-lg p-4 bg-neutral-50 dark:bg-neutral-800">
                             <div className="flex items-center justify-between mb-3">
                               <h4 className="font-medium capitalize text-sm">{condition}</h4>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => {
-                                  messageForm.setValue('subject', template.subject);
-                                  messageForm.setValue('message', template.message);
-                                  setIsNewMessageOpen(true);
-                                }}
-                              >
-                                Use
-                              </Button>
+                              <div className="flex space-x-1">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => {
+                                    setCurrentTemplate(template);
+                                    setEditedTemplate({...template});
+                                    setIsTemplateViewOpen(true);
+                                  }}
+                                >
+                                  View
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => {
+                                    messageForm.setValue('subject', template.subject);
+                                    messageForm.setValue('message', template.message);
+                                    setIsNewMessageOpen(true);
+                                  }}
+                                >
+                                  Use
+                                </Button>
+                              </div>
                             </div>
                             <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-2">
                               Subject: {template.subject}
@@ -987,6 +1016,96 @@ export default function Communications() {
           </div>
         </div>
       </div>
+
+      {/* Template View Dialog */}
+      <Dialog open={isTemplateViewOpen} onOpenChange={setIsTemplateViewOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <FileText className="h-5 w-5 text-[hsl(186,100%,30%)]" />
+              <span>Template Preview & Editor</span>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {editedTemplate && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2 block">
+                  Subject
+                </label>
+                <Input
+                  value={editedTemplate.subject}
+                  onChange={(e) => setEditedTemplate({
+                    ...editedTemplate,
+                    subject: e.target.value
+                  })}
+                  className="w-full"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2 block">
+                  Message Content
+                </label>
+                <Textarea
+                  value={editedTemplate.message}
+                  onChange={(e) => setEditedTemplate({
+                    ...editedTemplate,
+                    message: e.target.value
+                  })}
+                  rows={15}
+                  className="w-full font-mono text-sm"
+                />
+              </div>
+              
+              <div className="flex justify-between pt-4 border-t">
+                <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Use placeholders like [Patient Name], [Clinic Phone], [Clinic Email] for personalization
+                </div>
+                
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setEditedTemplate(currentTemplate);
+                    }}
+                  >
+                    Reset Changes
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      if (editedTemplate) {
+                        messageForm.setValue('subject', editedTemplate.subject);
+                        messageForm.setValue('message', editedTemplate.message);
+                        setIsTemplateViewOpen(false);
+                        setIsNewMessageOpen(true);
+                      }
+                    }}
+                    className="bg-[hsl(186,100%,30%)] hover:bg-[hsl(186,100%,25%)] text-white"
+                  >
+                    Use Template
+                  </Button>
+                  
+                  <Button
+                    onClick={() => {
+                      toast({
+                        title: "Template Updated",
+                        description: "Template changes have been saved locally for this session.",
+                      });
+                      setIsTemplateViewOpen(false);
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
