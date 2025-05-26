@@ -468,21 +468,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Webhook endpoint for chatbot integration
+  // Webhook endpoint for chatbot consultations - matches your exact data structure
   app.post('/api/webhook/chatbot', async (req: Request, res: Response) => {
     try {
-      console.log('Received webhook from chatbot:', JSON.stringify(req.body, null, 2));
+      console.log('Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
       
-      // Flexible data extraction to handle different formats
-      const webhookData = req.body;
-      
-      // Try to extract patient data from various possible locations in the payload
-      const patientInfo = {
-        name: extractValue(webhookData, ['patient.name', 'patient_name', 'user.name', 'name', 'fullName', 'user.fullName']),
-        email: extractValue(webhookData, ['patient.email', 'patient_email', 'user.email', 'email', 'emailAddress', 'user.emailAddress']),
-        phone: extractValue(webhookData, ['patient.phone', 'patient_phone', 'user.phone', 'phone', 'phoneNumber', 'user.phoneNumber']),
-        dateOfBirth: extractValue(webhookData, ['patient.dateOfBirth', 'patient_dob', 'user.dob', 'dateOfBirth', 'dob', 'user.dob'])
-      };
+      // Store consultation data directly using your chatbot's exact structure
+      const consultationRecord = await storage.createConsultation({
+        name: consultationData.name || 'Unknown',
+        email: consultationData.email || '',
+        phone: consultationData.phone || '',
+        preferredClinic: consultationData.preferred_clinic || null,
+        issueCategory: consultationData.issue_category || null,
+        issueSpecifics: consultationData.issue_specifics || null,
+        painDuration: consultationData.pain_duration || null,
+        painSeverity: consultationData.pain_severity || null,
+        additionalInfo: consultationData.additional_info || null,
+        previousTreatment: consultationData.previous_treatment || null,
+        hasImage: consultationData.has_image || null,
+        imagePath: consultationData.image_path || null,
+        imageAnalysis: consultationData.image_analysis || null,
+        symptomDescription: consultationData.symptom_description || null,
+        symptomAnalysis: consultationData.symptom_analysis || null,
+        conversationLog: consultationData.conversation_log || null,
+      });
       
       // Try to extract clinic location
       const clinicLocation = extractValue(webhookData, [

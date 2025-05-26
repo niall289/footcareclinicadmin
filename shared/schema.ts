@@ -145,6 +145,28 @@ export const followUps = pgTable("follow_ups", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Consultations table - matches your chatbot's exact data structure
+export const consultations = pgTable("consultations", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  preferredClinic: text("preferred_clinic"),
+  issueCategory: text("issue_category"),
+  issueSpecifics: text("issue_specifics"),
+  painDuration: text("pain_duration"),
+  painSeverity: text("pain_severity"),
+  additionalInfo: text("additional_info"),
+  previousTreatment: text("previous_treatment"),
+  hasImage: text("has_image"),
+  imagePath: text("image_path"),
+  imageAnalysis: text("image_analysis"),
+  symptomDescription: text("symptom_description"),
+  symptomAnalysis: text("symptom_analysis"),
+  conversationLog: jsonb("conversation_log"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Define relations
 export const patientsRelations = relations(patients, ({ many }) => ({
   assessments: many(assessments),
@@ -312,3 +334,8 @@ export type CommunicationWithPatient = Communication & { patient: Patient };
 export type InsertFollowUp = z.infer<typeof insertFollowUpSchema>;
 export type FollowUp = typeof followUps.$inferSelect;
 export type FollowUpWithPatient = FollowUp & { patient: Patient };
+
+// Consultation types - matching your chatbot's exact structure
+export const insertConsultationSchema = createInsertSchema(consultations);
+export type InsertConsultation = z.infer<typeof insertConsultationSchema>;
+export type Consultation = typeof consultations.$inferSelect;
