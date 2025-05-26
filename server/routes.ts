@@ -258,8 +258,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Apply authentication only for API endpoints that need protection
   app.use('/api', (req, res, next) => {
-    // Skip authentication for webhook endpoint
-    if (req.path === '/webhook/chatbot') {
+    // Skip authentication for webhook endpoint and clinic data (needed for map display)
+    if (req.path === '/webhook/chatbot' || 
+        req.path === '/clinics' || 
+        req.path === '/clinics/assessment-counts') {
       return next();
     }
     
@@ -533,26 +535,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Clinic routes (public for map display) - BEFORE authentication middleware
-  app.get('/api/clinics', skipAuthForWebhook, async (req, res) => {
-    try {
-      const clinics = await storage.getClinics();
-      res.json(clinics);
-    } catch (error) {
-      console.error('Error fetching clinics:', error);
-      res.status(500).json({ message: 'Failed to fetch clinics' });
-    }
-  });
 
-  app.get('/api/clinics/assessment-counts', skipAuthForWebhook, async (req, res) => {
-    try {
-      const clinicCounts = await storage.getClinicAssessmentCounts();
-      res.json(clinicCounts);
-    } catch (error) {
-      console.error('Error fetching clinic assessment counts:', error);
-      res.status(500).json({ message: 'Failed to fetch clinic assessment counts' });
-    }
-  });
 
   // Communication routes
   app.get('/api/communications', isAuthenticated, async (req, res) => {
