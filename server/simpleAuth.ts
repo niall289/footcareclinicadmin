@@ -96,9 +96,11 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
   return res.status(401).json({ message: 'Unauthorized' });
 }
 
-// Skip auth for webhook
+// Skip auth for webhook and clinic data
 export function skipAuthForWebhook(req: Request, res: Response, next: NextFunction) {
-  if (req.path === '/api/webhook/chatbot') {
+  if (req.path === '/api/webhook/chatbot' || 
+      req.path === '/api/clinics' || 
+      req.path === '/api/clinics/assessment-counts') {
     return next();
   }
   
