@@ -512,6 +512,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Clinic routes (public for map display)
+  app.get('/api/clinics', async (req, res) => {
+    try {
+      const clinics = await storage.getClinics();
+      res.json(clinics);
+    } catch (error) {
+      console.error('Error fetching clinics:', error);
+      res.status(500).json({ message: 'Failed to fetch clinics' });
+    }
+  });
+
+  app.get('/api/clinics/assessment-counts', async (req, res) => {
+    try {
+      const clinicCounts = await storage.getClinicAssessmentCounts();
+      res.json(clinicCounts);
+    } catch (error) {
+      console.error('Error fetching clinic assessment counts:', error);
+      res.status(500).json({ message: 'Failed to fetch clinic assessment counts' });
+    }
+  });
+
   // Communication routes
   app.get('/api/communications', isAuthenticated, async (req, res) => {
     try {
