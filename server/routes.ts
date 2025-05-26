@@ -216,6 +216,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Failed to fetch clinic assessment counts' });
     }
   });
+
+  // Get consultations from chatbot
+  app.get('/api/consultations', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const consultations = await storage.getConsultations();
+      res.json(consultations);
+    } catch (error) {
+      console.error('Error fetching consultations:', error);
+      res.status(500).json({ message: 'Failed to fetch consultations' });
+    }
+  });
   
   // Auth middleware
   setupAuth(app);

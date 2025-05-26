@@ -55,6 +55,7 @@ export default function Sidebar({ className, user, onClose }: SidebarProps) {
     { name: "Dashboard", href: "/", icon: "ri-dashboard-3-line", emoji: "🩺" },
     { name: "Patients", href: "/patients", icon: "ri-user-heart-line", emoji: "👥" },
     { name: "Chat Results", href: "/chat-results", icon: "ri-chat-check-line", emoji: "💬" },
+    { name: "Consultations", href: "/consultations", icon: "ri-stethoscope-line", emoji: "🔍" },
     { name: "Communications", href: "/communications", icon: "ri-message-3-line", emoji: "📧" },
     { name: "Analytics", href: "/analytics", icon: "ri-line-chart-line", emoji: "📊" },
   ];
