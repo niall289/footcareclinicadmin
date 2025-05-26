@@ -7,6 +7,8 @@ import {
   conditions,
   clinics,
   assessmentConditions,
+  communications,
+  followUps,
   type UpsertUser,
   type User,
   type InsertPatient,
@@ -24,6 +26,12 @@ import {
   type InsertClinic,
   type Clinic,
   type ClinicWithAssessmentCount,
+  type InsertCommunication,
+  type Communication,
+  type CommunicationWithPatient,
+  type InsertFollowUp,
+  type FollowUp,
+  type FollowUpWithPatient,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, count, like, or, between, asc } from "drizzle-orm";
