@@ -209,7 +209,7 @@ The FootCare Clinic Team`
   }
 };
 
-export default function Communications() {
+function CommunicationsImproved() {
   const [isNewMessageOpen, setIsNewMessageOpen] = useState(false);
   const [isNewFollowUpOpen, setIsNewFollowUpOpen] = useState(false);
   const [patientSearchTerm, setPatientSearchTerm] = useState("");
@@ -874,3 +874,5 @@ export default function Communications() {
     </>
   );
 }
+
+export default CommunicationsImproved;
