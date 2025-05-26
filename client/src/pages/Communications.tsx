@@ -343,6 +343,39 @@ export default function Communications() {
     createFollowUpMutation.mutate(data);
   };
 
+  // Template selection handler
+  const handleTemplateSelect = (templateType: string, templateData: any, patient?: Patient) => {
+    if (!patient) {
+      setIsNewMessageOpen(true);
+      messageForm.setValue('subject', templateData.subject);
+      messageForm.setValue('message', templateData.message);
+      return;
+    }
+
+    // Auto-populate patient information
+    messageForm.setValue('patientId', patient.id);
+    messageForm.setValue('subject', templateData.subject);
+    
+    // Replace placeholders with actual patient data
+    let personalizedMessage = templateData.message;
+    personalizedMessage = personalizedMessage.replace(/\[Patient Name\]/g, patient.name);
+    personalizedMessage = personalizedMessage.replace(/\[Clinic Phone\]/g, '+353 1 234 5678');
+    personalizedMessage = personalizedMessage.replace(/\[Clinic Email\]/g, 'info@footcareclinic.ie');
+    
+    messageForm.setValue('message', personalizedMessage);
+    
+    // Set appropriate communication type based on template
+    if (templateType === 'satisfaction') {
+      messageForm.setValue('type', 'email');
+    } else if (patient.phone) {
+      messageForm.setValue('type', 'sms');
+    } else {
+      messageForm.setValue('type', 'email');
+    }
+    
+    setIsNewMessageOpen(true);
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "sent":
