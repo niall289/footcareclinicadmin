@@ -473,6 +473,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
       
+      // Extract consultation data in your chatbot's exact format
+      const consultationData = req.body;
+      
       // Store consultation data directly using your chatbot's exact structure
       const consultationRecord = await storage.createConsultation({
         name: consultationData.name || 'Unknown',
@@ -492,6 +495,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         symptomAnalysis: consultationData.symptom_analysis || null,
         conversationLog: consultationData.conversation_log || null,
       });
+
+      // Broadcast new consultation to all connected admin users via WebSocket
+      if (typeof (global as any).broadcastToClients === 'function') {
+        (global as any).broadcastToClients({
+          type: 'new_consultation',
+          data: {
+            consultationId: consultationRecord.id,
+            patientName: consultationRecord.name,
+            issueCategory: consultationRecord.issueCategory,
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+
+      res.status(200).json({ 
+        success: true, 
+        message: 'Consultation received and stored successfully',
+        consultationId: consultationRecord.id
+      });
+
+    } catch (error) {
+      console.error('Error processing chatbot consultation:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to process consultation data' 
+      });
+    }
+  });
       
       // Try to extract clinic location
       const clinicLocation = extractValue(webhookData, [

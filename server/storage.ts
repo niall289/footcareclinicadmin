@@ -9,6 +9,7 @@ import {
   assessmentConditions,
   communications,
   followUps,
+  consultations,
   type UpsertUser,
   type User,
   type InsertPatient,
@@ -28,6 +29,8 @@ import {
   type ClinicWithAssessmentCount,
   type InsertCommunication,
   type Communication,
+  type InsertConsultation,
+  type Consultation,
   type CommunicationWithPatient,
   type InsertFollowUp,
   type FollowUp,
@@ -605,6 +608,19 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return followUp;
+  }
+
+  // Consultation operations - for your chatbot's exact data structure
+  async createConsultation(consultationData: InsertConsultation): Promise<Consultation> {
+    const [consultation] = await db
+      .insert(consultations)
+      .values(consultationData)
+      .returning();
+    return consultation;
+  }
+
+  async getConsultations(): Promise<Consultation[]> {
+    return await db.select().from(consultations).orderBy(desc(consultations.createdAt));
   }
 }
 
