@@ -482,7 +482,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Webhook endpoint for chatbot consultations - matches your exact data structure
   app.post('/api/webhook/chatbot', async (req: Request, res: Response) => {
     try {
-      console.log('Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
+      console.log('Received webhook from chatbot:', JSON.stringify(req.body, null, 2));
       
       // Extract consultation data in your chatbot's exact format
       const consultationData = req.body;
