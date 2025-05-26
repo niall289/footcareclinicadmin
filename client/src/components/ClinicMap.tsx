@@ -56,8 +56,8 @@ export default function ClinicMap({ className }: ClinicMapProps) {
   });
   
   // Calculate max count for scaling circle sizes
-  const maxCount = clinicStats?.reduce((max: number, clinic: ClinicWithCount) => 
-    clinic.assessmentCount > max ? clinic.assessmentCount : max, 0) || 1;
+  const maxCount = Array.isArray(clinicStats) ? clinicStats.reduce((max: number, clinic: ClinicWithCount) => 
+    clinic.assessmentCount > max ? clinic.assessmentCount : max, 0) : 1;
   
   // Scale circle radius based on assessment count
   const getCircleRadius = (count: number) => {
@@ -70,7 +70,7 @@ export default function ClinicMap({ className }: ClinicMapProps) {
   
   // Update map center if clinics data changes
   useEffect(() => {
-    if (clinics && clinics.length > 0) {
+    if (Array.isArray(clinics) && clinics.length > 0) {
       // Center the map on the average coordinates of all clinics
       const totalLat = clinics.reduce((sum: number, clinic: Clinic) => 
         sum + parseFloat(clinic.latitude), 0);
@@ -127,7 +127,7 @@ export default function ClinicMap({ className }: ClinicMapProps) {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
               
-              {clinicStats?.map((clinic: ClinicWithCount) => (
+              {Array.isArray(clinicStats) && clinicStats.map((clinic: ClinicWithCount) => (
                 <CircleMarker 
                   key={clinic.id}
                   center={[parseFloat(clinic.latitude), parseFloat(clinic.longitude)]}

@@ -43,6 +43,9 @@ export const patients = pgTable("patients", {
   name: varchar("name").notNull(),
   email: varchar("email").unique(),
   phone: varchar("phone"),
+  age: integer("age"),
+  gender: varchar("gender"), // Male, Female, Other
+  insuranceType: varchar("insurance_type"), // HSE Public, Private Insurance, Self-Pay, DPS Medical Card
   dateOfBirth: timestamp("date_of_birth"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
