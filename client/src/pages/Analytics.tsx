@@ -13,7 +13,7 @@ import { BarChart, LineChart, PieChart } from "@/components/ui/charts-simplified
 import ExportButton from "@/components/ExportButton";
 import FilterDateRange from "@/components/FilterDateRange";
 import { Bar, Line } from "recharts";
-import ClinicMap from "@/components/ClinicMap";
+import ClinicMap from "@/components/ClinicMapFixed";
 
 export default function Analytics() {
   const { toast } = useToast();
