@@ -491,6 +491,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const consultationRecord = await storage.createConsultation(consultationData);
       console.log('✅ Consultation stored with ID:', consultationRecord.id);
 
+      console.log('🔄 Starting conversion to patient and assessment records...');
+      
       // Convert consultation to patient record for the main portal
       const patientData = {
         name: req.body.name || 'Unknown Patient',
@@ -498,26 +500,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         phone: req.body.phone || null,
       };
 
+      console.log('Patient data to create:', patientData);
+
       // Check if patient already exists
       let patientRecord = null;
       if (req.body.email) {
         try {
           patientRecord = await storage.getPatientByEmail(req.body.email);
-          console.log('Found existing patient:', patientRecord.id);
+          console.log('✅ Found existing patient:', patientRecord.id);
         } catch (error) {
           console.log('Patient lookup failed, will create new patient');
         }
       }
       
       if (!patientRecord) {
-        console.log('Creating new patient from consultation:', patientData);
-        try {
-          patientRecord = await storage.createPatient(patientData);
-          console.log('✅ Patient created successfully with ID:', patientRecord.id);
-        } catch (error) {
-          console.error('❌ Failed to create patient:', error);
-          throw error;
-        }
+        console.log('Creating new patient from consultation...');
+        patientRecord = await storage.createPatient(patientData);
+        console.log('✅ Patient created successfully with ID:', patientRecord.id);
       }
 
       // Create assessment from consultation for analytics and dashboard  
@@ -529,14 +528,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       console.log('Creating assessment from consultation:', assessmentData);
-      let assessmentRecord;
-      try {
-        assessmentRecord = await storage.createAssessment(assessmentData);
-        console.log('✅ Assessment created successfully with ID:', assessmentRecord.id);
-      } catch (error) {
-        console.error('❌ Failed to create assessment:', error);
-        throw error;
-      }
+      const assessmentRecord = await storage.createAssessment(assessmentData);
+      console.log('✅ Assessment created successfully with ID:', assessmentRecord.id);
 
       // Broadcast new consultation to all connected admin users via WebSocket
       if (typeof (global as any).broadcastToClients === 'function') {
@@ -555,15 +548,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true, 
         message: 'Consultation received and stored successfully',
         consultationId: consultationRecord.id,
-        patientId: patientRecord.id,
-        assessmentId: assessmentRecord.id
+        patientId: patientRecord?.id,
+        assessmentId: assessmentRecord?.id
       });
 
     } catch (error) {
-      console.error('Error processing chatbot consultation:', error);
+      console.error('❌ Critical error in consultation webhook:', error);
       res.status(500).json({ 
         success: false, 
-        message: 'Failed to process consultation data' 
+        message: 'Failed to process consultation data',
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
