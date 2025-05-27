@@ -41,17 +41,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('✅ Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
       
-      // Store consultation data directly using your chatbot's exact structure
+      // Store consultation record
       const consultationRecord = await storage.createConsultation(req.body);
 
-      // Broadcast new consultation to all connected admin users via WebSocket
+      // Convert consultation to patient record for the main portal
+      const patientData = {
+        name: req.body.name || 'Unknown Patient',
+        email: req.body.email || null,
+        phone: req.body.phone || null,
+      };
+
+      // Check if patient already exists
+      let patientRecord = req.body.email ? await storage.getPatientByEmail(req.body.email) : null;
+      if (!patientRecord) {
+        console.log('Creating new patient from consultation:', patientData);
+        patientRecord = await storage.createPatient(patientData);
+      }
+
+      // Create assessment from consultation for analytics and dashboard
+      const assessmentData = {
+        patientId: patientRecord.id,
+        riskLevel: req.body.pain_severity && parseInt(req.body.pain_severity) >= 7 ? 'high' : 'medium',
+        status: 'completed',
+        clinicLocation: req.body.preferred_clinic || null,
+      };
+
+      const assessmentRecord = await storage.createAssessment(assessmentData);
+
+      // Create condition record if issue category exists
+      if (req.body.issue_category) {
+        try {
+          const existingConditions = await storage.getConditions();
+          let condition = existingConditions.find(c => 
+            c.name.toLowerCase() === req.body.issue_category.toLowerCase()
+          );
+          
+          if (!condition) {
+            condition = await storage.createCondition({
+              name: req.body.issue_category,
+              description: req.body.issue_specifics || ''
+            });
+          }
+        } catch (error) {
+          console.log('Note: Could not create condition record:', error);
+        }
+      }
+
+      // Broadcast updates to all connected admin users
       if (typeof (global as any).broadcastToClients === 'function') {
         (global as any).broadcastToClients({
-          type: 'new_consultation',
+          type: 'new_assessment',
           data: {
-            consultationId: consultationRecord.id,
-            patientName: consultationRecord.name,
-            issueCategory: consultationRecord.issueCategory,
+            patientId: patientRecord.id,
+            patientName: patientRecord.name,
+            assessmentId: assessmentRecord.id,
+            riskLevel: assessmentRecord.riskLevel,
             timestamp: new Date().toISOString()
           }
         });
@@ -59,8 +103,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(200).json({ 
         success: true, 
-        message: 'Consultation received and stored successfully',
-        consultationId: consultationRecord.id
+        message: 'Consultation received and processed successfully',
+        consultationId: consultationRecord.id,
+        patientId: patientRecord.id,
+        assessmentId: assessmentRecord.id
       });
 
     } catch (error) {
