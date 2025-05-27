@@ -480,6 +480,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Webhook endpoint for chatbot consultations - matches your exact data structure
+  app.post('/api/webhook/consultation', async (req: Request, res: Response) => {
+    try {
+      console.log('Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
+      
+      // Store consultation data directly using your chatbot's exact structure
+      const consultationRecord = await storage.createConsultation(req.body);
+
+      // Broadcast new consultation to all connected admin users via WebSocket
+      if (typeof (global as any).broadcastToClients === 'function') {
+        (global as any).broadcastToClients({
+          type: 'new_consultation',
+          data: {
+            consultationId: consultationRecord.id,
+            patientName: consultationRecord.name,
+            issueCategory: consultationRecord.issueCategory,
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+
+      res.status(200).json({ 
+        success: true, 
+        message: 'Consultation received and stored successfully',
+        consultationId: consultationRecord.id
+      });
+
+    } catch (error) {
+      console.error('Error processing chatbot consultation:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to process consultation data' 
+      });
+    }
+  });
+
+  // Alternative webhook endpoint for testing
   app.post('/api/webhook/chatbot', async (req: Request, res: Response) => {
     try {
       console.log('Received webhook from chatbot:', JSON.stringify(req.body, null, 2));
@@ -534,6 +570,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Legacy webhook endpoint for flexible data processing
+  app.post('/api/webhook/legacy', async (req: Request, res: Response) => {
+    try {
+      console.log('Received legacy webhook:', JSON.stringify(req.body, null, 2));
+      
+      const webhookData = req.body;
       
       // Try to extract clinic location
       const clinicLocation = extractValue(webhookData, [
