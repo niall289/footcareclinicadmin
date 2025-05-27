@@ -44,6 +44,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store consultation record
       const consultationRecord = await storage.createConsultation(req.body);
 
+      console.log('Converting consultation to patient and assessment records...');
+      
       // Convert consultation to patient record for the main portal
       const patientData = {
         name: req.body.name || 'Unknown Patient',
@@ -52,10 +54,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       // Check if patient already exists
-      let patientRecord = req.body.email ? await storage.getPatientByEmail(req.body.email) : null;
+      let patientRecord = null;
+      if (req.body.email) {
+        try {
+          patientRecord = await storage.getPatientByEmail(req.body.email);
+        } catch (error) {
+          console.log('Patient lookup failed, will create new patient');
+        }
+      }
+      
       if (!patientRecord) {
         console.log('Creating new patient from consultation:', patientData);
-        patientRecord = await storage.createPatient(patientData);
+        try {
+          patientRecord = await storage.createPatient(patientData);
+          console.log('✅ Patient created successfully:', patientRecord.id);
+        } catch (error) {
+          console.error('❌ Failed to create patient:', error);
+          throw error;
+        }
       }
 
       // Create assessment from consultation for analytics and dashboard
@@ -66,7 +82,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         clinicLocation: req.body.preferred_clinic || null,
       };
 
-      const assessmentRecord = await storage.createAssessment(assessmentData);
+      console.log('Creating assessment from consultation:', assessmentData);
+      let assessmentRecord;
+      try {
+        assessmentRecord = await storage.createAssessment(assessmentData);
+        console.log('✅ Assessment created successfully:', assessmentRecord.id);
+      } catch (error) {
+        console.error('❌ Failed to create assessment:', error);
+        throw error;
+      }
 
       // Create condition record if issue category exists
       if (req.body.issue_category) {
