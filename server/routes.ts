@@ -571,15 +571,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Legacy webhook endpoint for flexible data processing
-  app.post('/api/webhook/legacy', async (req: Request, res: Response) => {
-    try {
-      console.log('Received legacy webhook:', JSON.stringify(req.body, null, 2));
-      
-      const webhookData = req.body;
-      
-      // Try to extract clinic location
-      const clinicLocation = extractValue(webhookData, [
+  const httpServer = createServer(app);
+  
+  // WebSocket server for real-time updates
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  // Store connected clients
+  const clients = new Set<WebSocket>();
+  
+  wss.on('connection', (ws: WebSocket) => {
+    console.log('Admin client connected to WebSocket');
+    clients.add(ws);
+    
+    ws.on('close', () => {
+      console.log('Admin client disconnected from WebSocket');
+      clients.delete(ws);
+    });
+    
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+      clients.delete(ws);
+    });
+  });
+  
+  // Global function to broadcast messages to all connected clients
+  (global as any).broadcastToClients = (message: any) => {
+    const messageStr = JSON.stringify(message);
+    clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(messageStr);
+      }
+    });
+  };
+
+  return httpServer;
+}
         'assessment.clinicLocation', 
         'assessment_clinic_location',
         'clinic', 
@@ -751,8 +777,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Failed to process webhook data' });
     }
   });
-
-
 
   // Communication routes
   app.get('/api/communications', isAuthenticated, async (req, res) => {
