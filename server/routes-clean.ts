@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import WebSocket, { WebSocketServer } from 'ws';
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./simpleAuth";
+import { setupAuth, isAuthenticated, skipAuthForWebhook } from "./simpleAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -36,8 +36,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Consultations endpoint - matches your chatbot's URL
-  app.post('/api/webhook/consultation', async (req: Request, res: Response) => {
+  // Consultations endpoint - matches your chatbot's URL (no auth required for webhooks)
+  app.post('/api/webhook/consultation', skipAuthForWebhook, async (req: Request, res: Response) => {
     try {
       console.log('✅ Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
       
