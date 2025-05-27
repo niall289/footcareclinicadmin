@@ -482,10 +482,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Webhook endpoint for chatbot consultations - matches your exact data structure
   app.post('/api/webhook/consultation', async (req: Request, res: Response) => {
     try {
-      console.log('Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
+      console.log('✅ Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
       
-      // Store consultation data directly using your chatbot's exact structure
-      const consultationRecord = await storage.createConsultation(req.body);
+      // Map snake_case to camelCase for database storage
+      const consultationData = {
+        name: req.body.name,
+        email: req.body.email,
+        phone: req.body.phone,
+        preferredClinic: req.body.preferred_clinic,
+        issueCategory: req.body.issue_category,
+        issueSpecifics: req.body.issue_specifics,
+        painDuration: req.body.pain_duration,
+        painSeverity: req.body.pain_severity,
+        additionalInfo: req.body.additional_info,
+        previousTreatment: req.body.previous_treatment,
+        hasImage: req.body.has_image,
+        imagePath: req.body.image_path,
+        imageAnalysis: req.body.image_analysis,
+        symptomDescription: req.body.symptom_description,
+        symptomAnalysis: req.body.symptom_analysis,
+        conversationLog: req.body.conversation_log,
+      };
+
+      // Store consultation data with proper field mapping
+      const consultationRecord = await storage.createConsultation(consultationData);
+      console.log('✅ Consultation stored with ID:', consultationRecord.id);
+
+      // Convert consultation to patient record for the main portal
+      const patientData = {
+        name: req.body.name || 'Unknown Patient',
+        email: req.body.email || null,
+        phone: req.body.phone || null,
+      };
+
+      // Check if patient already exists
+      let patientRecord = null;
+      if (req.body.email) {
+        try {
+          patientRecord = await storage.getPatientByEmail(req.body.email);
+          console.log('Found existing patient:', patientRecord.id);
+        } catch (error) {
+          console.log('Patient lookup failed, will create new patient');
+        }
+      }
+      
+      if (!patientRecord) {
+        console.log('Creating new patient from consultation:', patientData);
+        patientRecord = await storage.createPatient(patientData);
+        console.log('✅ Patient created successfully with ID:', patientRecord.id);
+      }
+
+      // Create assessment from consultation for analytics and dashboard  
+      const assessmentData = {
+        patientId: patientRecord.id,
+        riskLevel: req.body.pain_severity && parseInt(req.body.pain_severity) >= 7 ? 'high' : 'medium',
+        status: 'completed',
+        clinicLocation: req.body.preferred_clinic || null,
+      };
+
+      console.log('Creating assessment from consultation:', assessmentData);
+      const assessmentRecord = await storage.createAssessment(assessmentData);
+      console.log('✅ Assessment created successfully with ID:', assessmentRecord.id);
 
       // Broadcast new consultation to all connected admin users via WebSocket
       if (typeof (global as any).broadcastToClients === 'function') {
@@ -503,7 +560,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json({ 
         success: true, 
         message: 'Consultation received and stored successfully',
-        consultationId: consultationRecord.id
+        consultationId: consultationRecord.id,
+        patientId: patientRecord.id,
+        assessmentId: assessmentRecord.id
       });
 
     } catch (error) {
