@@ -99,6 +99,7 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 // Skip auth for webhook and clinic data
 export function skipAuthForWebhook(req: Request, res: Response, next: NextFunction) {
   if (req.path === '/api/webhook/chatbot' || 
+      req.path === '/api/webhook/consultation' ||
       req.path === '/api/clinics' || 
       req.path === '/api/clinics/assessment-counts') {
     return next();
