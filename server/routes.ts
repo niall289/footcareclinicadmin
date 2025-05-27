@@ -484,25 +484,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('✅ Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
       
-      // Map snake_case to camelCase for database storage
-      const consultationData = {
-        name: req.body.name,
-        email: req.body.email,
-        phone: req.body.phone,
-        preferredClinic: req.body.preferred_clinic,
-        issueCategory: req.body.issue_category,
-        issueSpecifics: req.body.issue_specifics,
-        painDuration: req.body.pain_duration,
-        painSeverity: req.body.pain_severity,
-        additionalInfo: req.body.additional_info,
-        previousTreatment: req.body.previous_treatment,
-        hasImage: req.body.has_image,
-        imagePath: req.body.image_path,
-        imageAnalysis: req.body.image_analysis,
-        symptomDescription: req.body.symptom_description,
-        symptomAnalysis: req.body.symptom_analysis,
-        conversationLog: req.body.conversation_log,
-      };
+      // Store consultation data directly using your chatbot's exact structure
+      const consultationData = req.body;
 
       // Store consultation data with proper field mapping
       const consultationRecord = await storage.createConsultation(consultationData);
