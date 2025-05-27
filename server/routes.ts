@@ -511,8 +511,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!patientRecord) {
         console.log('Creating new patient from consultation:', patientData);
-        patientRecord = await storage.createPatient(patientData);
-        console.log('✅ Patient created successfully with ID:', patientRecord.id);
+        try {
+          patientRecord = await storage.createPatient(patientData);
+          console.log('✅ Patient created successfully with ID:', patientRecord.id);
+        } catch (error) {
+          console.error('❌ Failed to create patient:', error);
+          throw error;
+        }
       }
 
       // Create assessment from consultation for analytics and dashboard  
@@ -524,8 +529,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       console.log('Creating assessment from consultation:', assessmentData);
-      const assessmentRecord = await storage.createAssessment(assessmentData);
-      console.log('✅ Assessment created successfully with ID:', assessmentRecord.id);
+      let assessmentRecord;
+      try {
+        assessmentRecord = await storage.createAssessment(assessmentData);
+        console.log('✅ Assessment created successfully with ID:', assessmentRecord.id);
+      } catch (error) {
+        console.error('❌ Failed to create assessment:', error);
+        throw error;
+      }
 
       // Broadcast new consultation to all connected admin users via WebSocket
       if (typeof (global as any).broadcastToClients === 'function') {
