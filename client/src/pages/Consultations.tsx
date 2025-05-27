@@ -28,7 +28,7 @@ interface Consultation {
   symptomDescription: string | null;
   symptomAnalysis: string | null;
   conversationLog: string | null;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export default function Consultations() {
@@ -48,261 +48,255 @@ export default function Consultations() {
       consultation.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       consultation.issueCategory?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesClinic = selectedClinic === "all" || 
-      consultation.preferredClinic === selectedClinic;
+    const matchesClinic = selectedClinic === "all" || consultation.preferredClinic === selectedClinic;
+    const matchesCategory = selectedCategory === "all" || consultation.issueCategory === selectedCategory;
     
-    const matchesCategory = selectedCategory === "all" || 
-      consultation.issueCategory === selectedCategory;
-
     return matchesSearch && matchesClinic && matchesCategory;
   });
 
-  // Get unique values for filters
+  // Get unique clinics and categories for filters
   const uniqueClinics = [...new Set(consultations.map(c => c.preferredClinic).filter(Boolean))];
   const uniqueCategories = [...new Set(consultations.map(c => c.issueCategory).filter(Boolean))];
 
-  const getPriorityLevel = (painSeverity: string | null) => {
-    if (!painSeverity) return "low";
-    const severity = parseInt(painSeverity.split('/')[0] || "0");
-    if (severity >= 8) return "high";
-    if (severity >= 5) return "medium";
-    return "low";
-  };
-
-  const getPriorityColor = (level: string) => {
-    switch (level) {
-      case "high": return "bg-red-100 text-red-800 border-red-200";
-      case "medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      default: return "bg-green-100 text-green-800 border-green-200";
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), "MMM dd, yyyy 'at' hh:mm a");
+    } catch {
+      return "Unknown date";
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <Helmet>
-          <title>Consultations - FootCare Clinic Admin</title>
-        </Helmet>
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Patient Consultations</h1>
-        </div>
-        <div className="grid gap-4">
-          {[...Array(5)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
-                <Skeleton className="h-4 w-1/4 mb-2" />
-                <Skeleton className="h-4 w-1/2 mb-4" />
-                <Skeleton className="h-20 w-full" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const getPriorityBadge = (severity: string | null) => {
+    if (!severity) return <Badge variant="outline">Unknown</Badge>;
+    
+    const severityNum = parseInt(severity.split('/')[0]) || 0;
+    if (severityNum >= 8) return <Badge variant="destructive">High Priority</Badge>;
+    if (severityNum >= 5) return <Badge variant="default">Medium Priority</Badge>;
+    return <Badge variant="secondary">Low Priority</Badge>;
+  };
 
   return (
     <div className="space-y-6">
       <Helmet>
-        <title>Consultations - FootCare Clinic Admin</title>
+        <title>Live Consultations - FootCare Clinic Admin</title>
+        <meta name="description" content="View and manage live consultations from your chatbot" />
       </Helmet>
 
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Patient Consultations</h1>
-          <p className="text-muted-foreground">
-            {filteredConsultations.length} consultations from your chatbot
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Live Consultations</h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Real-time consultations from your FootCare Clinic chatbot
           </p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="flex items-center text-green-600">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+            <span className="text-sm font-medium">Live Updates</span>
+          </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search consultations..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Select value={selectedClinic} onValueChange={setSelectedClinic}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Clinics" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Clinics</SelectItem>
-                {uniqueClinics.map(clinic => (
-                  <SelectItem key={clinic} value={clinic!}>{clinic}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      {/* Search and Filters */}
+      <div className="flex flex-col md:flex-row gap-4 items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            placeholder="Search consultations by name, email, or issue..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        
+        <Select value={selectedClinic} onValueChange={setSelectedClinic}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All Clinics" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Clinics</SelectItem>
+            {uniqueClinics.map((clinic) => (
+              <SelectItem key={clinic} value={clinic!}>
+                {clinic}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {uniqueCategories.map(category => (
-                  <SelectItem key={category} value={category!}>{category}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {uniqueCategories.map((category) => (
+              <SelectItem key={category} value={category!}>
+                {category}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setSearchTerm("");
-                setSelectedClinic("all");
-                setSelectedCategory("all");
-              }}
-            >
-              Clear Filters
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Consultations List */}
-      <div className="grid gap-4">
-        {filteredConsultations.length === 0 ? (
+      {/* Consultation Cards */}
+      <div className="space-y-4">
+        {isLoading ? (
+          // Loading skeletons
+          Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-1/3" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4" />
+              </CardContent>
+            </Card>
+          ))
+        ) : filteredConsultations.length === 0 ? (
           <Card>
-            <CardContent className="p-12 text-center">
-              <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No consultations found</h3>
-              <p className="text-muted-foreground">
-                {searchTerm || selectedClinic !== "all" || selectedCategory !== "all" 
-                  ? "Try adjusting your filters to see more results."
-                  : "No consultations have been received from your chatbot yet."}
+            <CardContent className="text-center py-12">
+              <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                No consultations found
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                {consultations.length === 0 
+                  ? "Waiting for the first consultation from your chatbot..."
+                  : "Try adjusting your search criteria to find consultations."
+                }
               </p>
             </CardContent>
           </Card>
         ) : (
-          filteredConsultations.map((consultation) => {
-            const priority = getPriorityLevel(consultation.painSeverity);
-            return (
-              <Card key={consultation.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg">{consultation.name}</CardTitle>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          {format(new Date(consultation.createdAt), "MMM dd, yyyy")}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          {format(new Date(consultation.createdAt), "HH:mm")}
-                        </span>
+          filteredConsultations.map((consultation) => (
+            <Card key={consultation.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg text-gray-900 dark:text-white">
+                      {consultation.name}
+                    </CardTitle>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <div className="flex items-center">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        {formatDate(consultation.createdAt)}
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      {consultation.painSeverity && (
-                        <Badge className={getPriorityColor(priority)}>
-                          Pain: {consultation.painSeverity}
-                        </Badge>
+                      {consultation.preferredClinic && (
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {consultation.preferredClinic}
+                        </div>
                       )}
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {consultation.painSeverity && getPriorityBadge(consultation.painSeverity)}
+                    {consultation.hasImage && (
+                      <Badge variant="outline">
+                        📷 Image
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">Contact Information</h4>
+                    <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                      {consultation.email && (
+                        <div className="flex items-center">
+                          <Mail className="h-4 w-4 mr-2" />
+                          {consultation.email}
+                        </div>
+                      )}
+                      {consultation.phone && (
+                        <div className="flex items-center">
+                          <Phone className="h-4 w-4 mr-2" />
+                          {consultation.phone}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">Issue Details</h4>
+                    <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                       {consultation.issueCategory && (
-                        <Badge variant="secondary">
-                          {consultation.issueCategory}
-                        </Badge>
+                        <div><strong>Category:</strong> {consultation.issueCategory}</div>
+                      )}
+                      {consultation.issueSpecifics && (
+                        <div><strong>Details:</strong> {consultation.issueSpecifics}</div>
+                      )}
+                      {consultation.painDuration && (
+                        <div><strong>Duration:</strong> {consultation.painDuration}</div>
+                      )}
+                      {consultation.painSeverity && (
+                        <div><strong>Severity:</strong> {consultation.painSeverity}</div>
                       )}
                     </div>
                   </div>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  {/* Contact Information */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    {consultation.email && (
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>{consultation.email}</span>
-                      </div>
-                    )}
-                    {consultation.phone && (
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span>{consultation.phone}</span>
-                      </div>
-                    )}
-                    {consultation.preferredClinic && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{consultation.preferredClinic}</span>
-                      </div>
-                    )}
+                </div>
+                
+                {consultation.additionalInfo && (
+                  <div className="mt-4">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">Additional Information</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {consultation.additionalInfo}
+                    </p>
                   </div>
-
-                  {/* Issue Details */}
-                  {consultation.issueSpecifics && (
-                    <div>
-                      <h4 className="font-medium text-sm mb-1">Issue Description:</h4>
-                      <p className="text-sm text-muted-foreground">{consultation.issueSpecifics}</p>
-                    </div>
-                  )}
-
-                  {/* Additional Information */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    {consultation.painDuration && (
-                      <div>
-                        <span className="font-medium">Duration: </span>
-                        <span className="text-muted-foreground">{consultation.painDuration}</span>
-                      </div>
-                    )}
-                    {consultation.previousTreatment && (
-                      <div>
-                        <span className="font-medium">Previous Treatment: </span>
-                        <span className="text-muted-foreground">{consultation.previousTreatment}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Additional Info */}
-                  {consultation.additionalInfo && (
-                    <div>
-                      <h4 className="font-medium text-sm mb-1">Additional Information:</h4>
-                      <p className="text-sm text-muted-foreground">{consultation.additionalInfo}</p>
-                    </div>
-                  )}
-
-                  {/* AI Analysis */}
-                  {consultation.symptomAnalysis && (
-                    <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
-                      <h4 className="font-medium text-sm mb-1 text-blue-900 dark:text-blue-100">
-                        AI Analysis:
-                      </h4>
-                      <p className="text-sm text-blue-800 dark:text-blue-200">
-                        {consultation.symptomAnalysis}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Image Information */}
-                  {consultation.hasImage && (
-                    <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded-lg">
-                      <h4 className="font-medium text-sm mb-1 text-green-900 dark:text-green-100">
-                        Image Submitted:
-                      </h4>
-                      {consultation.imageAnalysis && (
-                        <p className="text-sm text-green-800 dark:text-green-200">
-                          Analysis: {consultation.imageAnalysis}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })
+                )}
+                
+                <div className="flex justify-end mt-4">
+                  <Button variant="outline" size="sm">
+                    View Full Details
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
         )}
       </div>
+
+      {/* Summary Stats */}
+      {!isLoading && consultations.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Consultation Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-[hsl(186,100%,30%)]">
+                  {consultations.length}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Total Consultations
+                </div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-[hsl(186,100%,30%)]">
+                  {uniqueClinics.length}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Clinics Involved
+                </div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-[hsl(186,100%,30%)]">
+                  {uniqueCategories.length}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Issue Categories
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
