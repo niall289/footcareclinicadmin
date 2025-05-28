@@ -153,11 +153,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get patients
+  // Get patients - return assessments with patient data for the frontend
   app.get('/api/patients', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const patients = await storage.getPatients();
-      res.json(patients);
+      const assessments = await storage.getAssessments({});
+      
+      res.json({
+        assessments: assessments,
+        pagination: {
+          total: assessments.length,
+          page: 1,
+          limit: 50,
+          totalPages: Math.ceil(assessments.length / 50)
+        }
+      });
     } catch (error) {
       console.error('Error fetching patients:', error);
       res.status(500).json({ message: 'Failed to fetch patients' });
