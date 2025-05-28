@@ -245,9 +245,15 @@ export default function Communications() {
   const [editedTemplate, setEditedTemplate] = useState<{subject: string, message: string} | null>(null);
 
   // Fetch patients for selection
-  const { data: patients, isLoading: isLoadingPatients } = useQuery({
+  const { data: patientsData, isLoading: isLoadingPatients } = useQuery<{
+    assessments: any[];
+    pagination: any;
+  }>({
     queryKey: ["/api/patients"],
   });
+  
+  // Extract unique patients from assessments
+  const patients = patientsData?.assessments?.map(assessment => assessment.patient) || [];
 
   // Fetch communications
   const { data: communications, isLoading: isLoadingCommunications } = useQuery({

@@ -24,11 +24,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const completedAssessments = await storage.getCompletedAssessmentsCount();
       const weeklyAssessments = await storage.getWeeklyAssessmentsCount();
       const flaggedResponses = await storage.getFlaggedResponsesCount();
+      const totalPatients = await storage.getPatientsCount();
       
       res.json({
         completedAssessments,
         weeklyAssessments,
-        flaggedResponses
+        flaggedResponses,
+        totalPatients
       });
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
