@@ -356,6 +356,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Get patients endpoint
+  app.get('/api/patients', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const patients = await storage.getPatients();
+      res.json(patients);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      res.status(500).json({ message: 'Failed to fetch patients' });
+    }
+  });
+
   // Sync patient with Cliniko
   app.post('/api/patients/:id/cliniko-sync', isAuthenticated, async (req: Request, res: Response) => {
     try {
