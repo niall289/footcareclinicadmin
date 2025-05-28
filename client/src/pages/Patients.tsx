@@ -6,6 +6,7 @@ import PatientFilters from "@/components/PatientFilters";
 import PatientTable from "@/components/PatientTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { AssessmentWithPatient } from "@shared/schema";
 
 export default function Patients() {
   const { toast } = useToast();
@@ -21,7 +22,7 @@ export default function Patients() {
 
   // Fetch patients with pagination and filters
   const { data, isLoading } = useQuery<{
-    assessments: AssessmentWithPatient[];
+    assessments: any[];
     pagination: { total: number; page: number; limit: number; totalPages: number };
   }>({
     queryKey: [
@@ -31,8 +32,8 @@ export default function Patients() {
         limit,
         search: filters.search,
         condition: filters.condition,
-        startDate: filters.startDate?.toISOString(),
-        endDate: filters.endDate?.toISOString(),
+        startDate: filters.startDate ? filters.startDate.toISOString() : undefined,
+        endDate: filters.endDate ? filters.endDate.toISOString() : undefined,
       },
     ],
   });
@@ -159,7 +160,12 @@ export default function Patients() {
         <PatientTable
           assessments={data?.assessments}
           isLoading={isLoading}
-          pagination={data?.pagination}
+          pagination={data?.pagination ? {
+            total: data.pagination.total,
+            page: data.pagination.page,
+            limit: data.pagination.limit,
+            pages: data.pagination.totalPages
+          } : undefined}
           onPageChange={handlePageChange}
         />
       </div>
