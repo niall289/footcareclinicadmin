@@ -356,19 +356,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Get patients endpoint
+  // Get patients endpoint - return assessments with patient data for the frontend
   app.get('/api/patients', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const patients = await storage.getPatients();
-      const assessments = await storage.getAssessments();
+      // Get assessments with patient information (this is what the frontend expects)
+      const assessments = await storage.getAssessments({});
       
       res.json({
         assessments: assessments,
         pagination: {
-          total: patients.length,
+          total: assessments.length,
           page: 1,
-          limit: patients.length,
-          totalPages: 1
+          limit: 50,
+          totalPages: Math.ceil(assessments.length / 50)
         }
       });
     } catch (error) {
