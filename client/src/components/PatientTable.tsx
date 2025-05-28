@@ -127,7 +127,7 @@ export default function PatientTable({
                     </TableCell>
                   </TableRow>
                 ))
-              ) : assessments.length === 0 ? (
+              ) : !assessments || assessments.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="px-6 py-10 text-center text-neutral-500 dark:text-neutral-400">
                     No assessments found

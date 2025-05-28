@@ -20,7 +20,10 @@ export default function Patients() {
   });
 
   // Fetch patients with pagination and filters
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<{
+    assessments: AssessmentWithPatient[];
+    pagination: { total: number; page: number; limit: number; totalPages: number };
+  }>({
     queryKey: [
       "/api/patients",
       {
@@ -28,8 +31,8 @@ export default function Patients() {
         limit,
         search: filters.search,
         condition: filters.condition,
-        startDate: filters.startDate?.toISOString?.(),
-        endDate: filters.endDate?.toISOString?.(),
+        startDate: filters.startDate?.toISOString(),
+        endDate: filters.endDate?.toISOString(),
       },
     ],
   });
