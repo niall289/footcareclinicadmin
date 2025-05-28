@@ -35,6 +35,24 @@ export default function Dashboard() {
     queryKey: ["/api/assessments/recent", { limit: 5 }],
   });
   
+  // Fetch patients data to calculate patient count
+  const { data: patientsData } = useQuery<{
+    assessments: any[];
+    pagination: any;
+  }>({
+    queryKey: ["/api/patients"],
+  });
+  
+  // Calculate unique patient count from consultation data
+  const uniquePatients = patientsData?.assessments?.reduce((acc, assessment) => {
+    if (!acc.some((p: any) => p.id === assessment.patient?.id)) {
+      acc.push(assessment.patient);
+    }
+    return acc;
+  }, []) || [];
+  
+  const totalPatients = uniquePatients.length;
+  
   // Handle filter changes
   const handleFilterChange = (filters: any) => {
     toast({
@@ -97,7 +115,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
           <StatsCard
             title="Total Patients"
-            value={stats?.totalPatients}
+            value={totalPatients}
             icon="ri-user-3-line"
             iconColor="text-primary-500"
             iconBgColor="bg-primary-50 dark:bg-primary-900/20"

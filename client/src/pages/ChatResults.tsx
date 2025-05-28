@@ -33,10 +33,13 @@ export default function ChatResults() {
           ? "in_progress" 
           : undefined;
 
-  // Fetch assessments with pagination and filters
-  const { data, isLoading } = useQuery({
+  // Fetch assessments with pagination and filters - use patients endpoint which has the correct data structure
+  const { data: rawData, isLoading } = useQuery<{
+    assessments: any[];
+    pagination: any;
+  }>({
     queryKey: [
-      "/api/assessments",
+      "/api/patients",
       {
         page,
         limit,
@@ -48,6 +51,12 @@ export default function ChatResults() {
       },
     ],
   });
+  
+  // Transform the data to match expected format
+  const data = rawData ? {
+    assessments: rawData.assessments || [],
+    pagination: rawData.pagination || { total: 0, page: 1, limit: 10, pages: 1 }
+  } : undefined;
 
   // Fetch flagged responses summary
   const { data: flaggedData, isLoading: isLoadingFlagged } = useQuery({
