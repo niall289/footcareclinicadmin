@@ -360,7 +360,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/patients', isAuthenticated, async (req: Request, res: Response) => {
     try {
       const patients = await storage.getPatients();
-      res.json(patients);
+      const assessments = await storage.getAssessments();
+      
+      res.json({
+        assessments: assessments,
+        pagination: {
+          total: patients.length,
+          page: 1,
+          limit: patients.length,
+          totalPages: 1
+        }
+      });
     } catch (error) {
       console.error('Error fetching patients:', error);
       res.status(500).json({ message: 'Failed to fetch patients' });
