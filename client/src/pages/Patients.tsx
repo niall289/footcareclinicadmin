@@ -22,7 +22,7 @@ export default function Patients() {
   // Fetch patients with pagination and filters
   const { data, isLoading } = useQuery({
     queryKey: [
-      "/api/assessments",
+      "/api/patients",
       {
         page,
         limit,
