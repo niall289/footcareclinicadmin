@@ -500,8 +500,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Webhook endpoint for chatbot consultations - matches your exact data structure
-  app.post('/api/webhook/consultation', async (req: Request, res: Response) => {
+  // Alternative webhook endpoint (disabled to avoid conflicts)
+  // app.post('/api/webhook/consultation', async (req: Request, res: Response) => {
     try {
       console.log('✅ Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
       

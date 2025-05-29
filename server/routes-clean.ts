@@ -43,27 +43,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('✅ Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
       
-      // Store consultation record with proper field mapping for your chatbot's data structure
-      const consultationData = {
-        name: req.body.patient_name || req.body.name || 'Unknown Patient',
-        email: req.body.email || null,
-        phone: req.body.phone || null,
-        preferredClinic: req.body.clinic_location || null,
-        issueCategory: req.body.issue_type || null,
-        issueSpecifics: req.body.pain_presence || req.body.nail_issue_details || req.body.skin_issue_general || null,
-        painDuration: req.body.pain_duration || null,
-        painSeverity: req.body.pain_severity || null,
-        additionalInfo: req.body.symptom_description || null,
-        previousTreatment: req.body.treatment_history || null,
-        hasImage: req.body.image_file_url ? 'Yes' : 'No',
-        imagePath: req.body.image_file_url || null,
-        imageAnalysis: req.body.image_analysis_text || null,
-        symptomDescription: req.body.symptom_description || null,
-        symptomAnalysis: req.body.image_analysis_text || null,
-        conversationLog: req.body
+      // Direct field mapping for your chatbot's exact data structure
+      const mappedData = {
+        name: req.body.patient_name || 'Test Patient',
+        email: req.body.email || 'test@footcare.com', 
+        phone: req.body.phone || '000-000-0000',
+        preferred_clinic: req.body.clinic_location,
+        issue_category: req.body.issue_type,
+        issue_specifics: req.body.pain_presence || req.body.nail_issue_details || req.body.skin_issue_general,
+        pain_duration: req.body.pain_duration,
+        pain_severity: req.body.pain_severity,
+        additional_info: req.body.symptom_description,
+        previous_treatment: req.body.treatment_history,
+        has_image: req.body.image_file_url ? 'Yes' : 'No',
+        image_path: req.body.image_file_url,
+        image_analysis: req.body.image_analysis_text,
+        symptom_description: req.body.symptom_description,
+        symptom_analysis: req.body.image_analysis_text,
+        conversation_log: req.body
       };
       
-      const consultationRecord = await storage.createConsultation(consultationData);
+      console.log('Mapped consultation data:', mappedData);
+      const consultationRecord = await storage.createConsultation(mappedData);
 
       console.log('Converting consultation to patient and assessment records...');
       
