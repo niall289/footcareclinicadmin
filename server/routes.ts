@@ -505,6 +505,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('✅ Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
       
+      // Import the chatbot data processor to handle the exact structure
+      const { processChatbotData } = await import('./webhooks/chatbot');
+      
+      // Process the webhook data using your chatbot's exact field mapping
+      const { patient, responses, clinicLocation, assessment } = processChatbotData(req.body);
+      
+      console.log('Processed chatbot data:', { patient, responsesCount: responses.length, clinicLocation });
+      
       // Store consultation data directly using your chatbot's exact structure
       const consultationData = req.body;
 
