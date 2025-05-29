@@ -513,8 +513,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('Processed chatbot data:', { patient, responsesCount: responses.length, clinicLocation });
       
-      // Store consultation data directly using your chatbot's exact structure
-      const consultationData = req.body;
+      // Store consultation data with proper field mapping from your chatbot's structure
+      const consultationData = {
+        name: req.body.patient_name || req.body.name || 'Unknown Patient',
+        email: req.body.email || null,
+        phone: req.body.phone || null,
+        preferredClinic: req.body.clinic_location || null,
+        issueCategory: req.body.issue_type || null,
+        issueSpecifics: req.body.pain_presence || req.body.nail_issue_details || req.body.skin_issue_general || null,
+        painDuration: req.body.pain_duration || null,
+        painSeverity: req.body.pain_severity || null,
+        additionalInfo: req.body.symptom_description || null,
+        previousTreatment: req.body.treatment_history || null,
+        hasImage: req.body.image_file_url ? 'Yes' : 'No',
+        imagePath: req.body.image_file_url || null,
+        imageAnalysis: req.body.image_analysis_text || null,
+        symptomDescription: req.body.symptom_description || null,
+        symptomAnalysis: req.body.image_analysis_text || null,
+        conversationLog: req.body
+      };
 
       // Store consultation data with proper field mapping
       const consultationRecord = await storage.createConsultation(consultationData);

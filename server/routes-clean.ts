@@ -43,8 +43,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('✅ Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
       
-      // Store consultation record
-      const consultationRecord = await storage.createConsultation(req.body);
+      // Store consultation record with proper field mapping for your chatbot's data structure
+      const consultationData = {
+        name: req.body.patient_name || req.body.name || 'Unknown Patient',
+        email: req.body.email || null,
+        phone: req.body.phone || null,
+        preferredClinic: req.body.clinic_location || null,
+        issueCategory: req.body.issue_type || null,
+        issueSpecifics: req.body.pain_presence || req.body.nail_issue_details || req.body.skin_issue_general || null,
+        painDuration: req.body.pain_duration || null,
+        painSeverity: req.body.pain_severity || null,
+        additionalInfo: req.body.symptom_description || null,
+        previousTreatment: req.body.treatment_history || null,
+        hasImage: req.body.image_file_url ? 'Yes' : 'No',
+        imagePath: req.body.image_file_url || null,
+        imageAnalysis: req.body.image_analysis_text || null,
+        symptomDescription: req.body.symptom_description || null,
+        symptomAnalysis: req.body.image_analysis_text || null,
+        conversationLog: req.body
+      };
+      
+      const consultationRecord = await storage.createConsultation(consultationData);
 
       console.log('Converting consultation to patient and assessment records...');
       
