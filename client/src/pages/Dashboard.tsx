@@ -41,6 +41,8 @@ export default function Dashboard() {
     pagination: any;
   }>({
     queryKey: ["/api/patients"],
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache results
   });
   
   // Calculate unique patient count from consultation data
