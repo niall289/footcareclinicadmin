@@ -67,19 +67,13 @@ export function setupAuth(app: Express) {
     });
   });
   
-  // Check if user is authenticated
+  // Check if user is authenticated - temporarily allow all access
   app.get('/api/auth/user', (req: Request, res: Response) => {
-    const token = req.session.token || req.headers.authorization?.replace('Bearer ', '');
-    
-    if (token && token === AUTH_TOKEN) {
-      return res.json({
-        id: 'admin',
-        role: 'admin',
-        authenticated: true
-      });
-    }
-    
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.json({
+      id: 'admin',
+      role: 'admin',
+      authenticated: true
+    });
   });
 }
 
