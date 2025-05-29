@@ -77,6 +77,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: req.body.email || null,
         phone: req.body.phone || null,
       };
+      
+      console.log('DEBUG - patientData being created:', patientData);
 
       // Check if patient already exists
       let patientRecord = null;
@@ -93,6 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           patientRecord = await storage.createPatient(patientData);
           console.log('✅ Patient created successfully:', patientRecord.id);
+          console.log('✅ Patient record details:', patientRecord);
         } catch (error) {
           console.error('❌ Failed to create patient:', error);
           throw error;
