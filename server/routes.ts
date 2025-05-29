@@ -181,18 +181,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get patients - return actual patient data for the frontend
-  app.get('/api/patients', async (req: Request, res: Response) => {
+  // Get patients - return assessments with patient data for the frontend
+  app.get('/api/patients', skipAuthForWebhook, async (req: Request, res: Response) => {
     try {
-      const patients = await storage.getPatients({});
+      const assessments = await storage.getAssessments({});
+      console.log('API returning assessments:', assessments.length, 'items');
       
       res.json({
-        patients: patients,
+        assessments: assessments,
         pagination: {
-          total: patients.length,
+          total: assessments.length,
           page: 1,
           limit: 50,
-          totalPages: Math.ceil(patients.length / 50)
+          totalPages: Math.ceil(assessments.length / 50)
         }
       });
     } catch (error) {
@@ -209,6 +210,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching assessments:', error);
       res.status(500).json({ message: 'Failed to fetch assessments' });
+    }
+  });
+
+  // Debug endpoint - no auth required
+  app.get('/api/debug/data', async (req: Request, res: Response) => {
+    try {
+      const assessments = await storage.getAssessments({});
+      const consultations = await storage.getConsultations();
+      const patients = await storage.getPatients({});
+      
+      res.json({
+        assessments_count: assessments.length,
+        consultations_count: consultations.length,
+        patients_count: patients.length,
+        sample_assessments: assessments.slice(0, 3),
+        sample_consultations: consultations.slice(0, 3),
+        sample_patients: patients.slice(0, 3)
+      });
+    } catch (error) {
+      console.error('Error in debug endpoint:', error);
+      res.status(500).json({ message: 'Debug failed', error: error.message });
     }
   });
 
