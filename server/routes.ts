@@ -42,6 +42,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/webhook/consultation', skipAuthForWebhook, async (req: Request, res: Response) => {
     try {
       console.log('✅ Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
+      console.log('DEBUG - patient_name field:', req.body.patient_name);
+      console.log('DEBUG - name field:', req.body.name);
+      console.log('DEBUG - all keys:', Object.keys(req.body));
       
       // Direct field mapping for your chatbot's exact data structure
       const mappedData = {
@@ -70,7 +73,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Convert consultation to patient record for the main portal
       const patientData = {
-        name: req.body.name || 'Unknown Patient',
+        name: req.body.patient_name || 'Unknown Patient',
         email: req.body.email || null,
         phone: req.body.phone || null,
       };
