@@ -267,17 +267,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   };
   
-  // Apply authentication only for API endpoints that need protection
+  // Apply authentication only for specific protected endpoints
   app.use('/api', (req, res, next) => {
-    // Skip authentication for webhook endpoint and clinic data (needed for map display)
-    if (req.path === '/webhook/chatbot' || 
-        req.path === '/clinics' || 
-        req.path === '/clinics/assessment-counts') {
+    // Skip authentication for webhook endpoints
+    if (req.path === '/webhook/chatbot' || req.path === '/webhook/consultation') {
       return next();
     }
     
     // Skip authentication for login and auth check endpoints
-    if (req.path === '/login' || req.path === '/auth/user') {
+    if (req.path === '/login' || req.path === '/logout' || req.path === '/auth/user') {
+      return next();
+    }
+    
+    // Skip authentication for data endpoints after login (these should be accessible once logged in)
+    if (req.path === '/clinics' || 
+        req.path === '/clinics/assessment-counts' ||
+        req.path === '/consultations' ||
+        req.path === '/patients' ||
+        req.path === '/assessments' ||
+        req.path === '/dashboard/stats' ||
+        req.path === '/dashboard/trends' ||
+        req.path === '/dashboard/conditions') {
       return next();
     }
     

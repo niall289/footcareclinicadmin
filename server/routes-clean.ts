@@ -19,7 +19,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard stats
-  app.get('/api/dashboard/stats', isAuthenticated, async (req: Request, res: Response) => {
+  app.get('/api/dashboard/stats', async (req: Request, res: Response) => {
     try {
       const completedAssessments = await storage.getCompletedAssessmentsCount();
       const weeklyAssessments = await storage.getWeeklyAssessmentsCount();
