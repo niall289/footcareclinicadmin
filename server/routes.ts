@@ -215,23 +215,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Debug endpoint - no auth required
-  app.get('/api/debug/data', async (req: Request, res: Response) => {
+  app.get('/api/debug/structure', skipAuthForWebhook, async (req: Request, res: Response) => {
     try {
       const assessments = await storage.getAssessments({});
-      const consultations = await storage.getConsultations();
-      const patients = await storage.getPatients({});
+      const firstAssessment = assessments[0];
       
       res.json({
-        assessments_count: assessments.length,
-        consultations_count: consultations.length,
-        patients_count: patients.length,
-        sample_assessments: assessments.slice(0, 3),
-        sample_consultations: consultations.slice(0, 3),
-        sample_patients: patients.slice(0, 3)
+        total_assessments: assessments.length,
+        first_assessment_structure: firstAssessment ? {
+          id: firstAssessment.id,
+          patientId: firstAssessment.patientId,
+          primaryConcern: firstAssessment.primaryConcern,
+          status: firstAssessment.status,
+          riskLevel: firstAssessment.riskLevel,
+          completedAt: firstAssessment.completedAt,
+          patient: firstAssessment.patient ? {
+            id: firstAssessment.patient.id,
+            name: firstAssessment.patient.name,
+            email: firstAssessment.patient.email
+          } : null
+        } : null
       });
     } catch (error) {
       console.error('Error in debug endpoint:', error);
-      res.status(500).json({ message: 'Debug failed', error: error.message });
+      res.status(500).json({ message: 'Debug failed' });
     }
   });
 
