@@ -46,23 +46,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('DEBUG - name field:', req.body.name);
       console.log('DEBUG - all keys:', Object.keys(req.body));
       
-      // Direct field mapping for your chatbot's exact data structure
+      // Map based on your actual chatbot's simple data structure
       const mappedData = {
-        name: req.body.patient_name || 'Test Patient',
-        email: req.body.email || 'test@footcare.com', 
-        phone: req.body.phone || '000-000-0000',
-        preferred_clinic: req.body.clinic_location,
-        issue_category: req.body.issue_type,
-        issue_specifics: req.body.pain_presence || req.body.nail_issue_details || req.body.skin_issue_general,
-        pain_duration: req.body.pain_duration,
-        pain_severity: req.body.pain_severity,
-        additional_info: req.body.symptom_description,
-        previous_treatment: req.body.treatment_history,
+        name: req.body.patient_name || 'Unknown Patient',
+        email: req.body.email || null, 
+        phone: req.body.phone || null,
+        preferred_clinic: req.body.clinic_location || null,
+        issue_category: req.body.issue_type || 'General consultation',
+        issue_specifics: req.body.pain_presence || req.body.nail_issue_details || req.body.skin_issue_general || null,
+        pain_duration: req.body.pain_duration || null,
+        pain_severity: req.body.pain_severity || null,
+        additional_info: req.body.symptom_description || null,
+        previous_treatment: req.body.treatment_history || null,
         has_image: req.body.image_file_url ? 'Yes' : 'No',
-        image_path: req.body.image_file_url,
-        image_analysis: req.body.image_analysis_text,
-        symptom_description: req.body.symptom_description,
-        symptom_analysis: req.body.image_analysis_text,
+        image_path: req.body.image_file_url || null,
+        image_analysis: req.body.image_analysis_text || null,
+        symptom_description: req.body.symptom_description || null,
+        symptom_analysis: req.body.image_analysis_text || null,
         conversation_log: req.body
       };
       
