@@ -186,6 +186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const assessments = await storage.getAssessments({});
       console.log('API returning assessments:', assessments.length, 'items');
+      console.log('Sample assessment structure:', JSON.stringify(assessments[0], null, 2));
       
       res.json({
         assessments: assessments,
