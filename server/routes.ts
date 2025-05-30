@@ -105,8 +105,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create assessment from consultation for analytics and dashboard
       const assessmentData = {
         patientId: patientRecord.id,
+        primaryConcern: req.body.issue_category || req.body.issue_type || 'General consultation',
         riskLevel: req.body.pain_severity && parseInt(req.body.pain_severity) >= 7 ? 'high' : 'medium',
         status: 'completed',
+        completedAt: new Date(),
         clinicLocation: req.body.preferred_clinic || null,
       };
 
@@ -185,8 +187,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/patients', skipAuthForWebhook, async (req: Request, res: Response) => {
     try {
       const assessments = await storage.getAssessments({});
-      console.log('API returning assessments:', assessments.length, 'items');
-      console.log('Sample assessment structure:', JSON.stringify(assessments[0], null, 2));
       
       res.json({
         assessments: assessments,
