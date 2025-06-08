@@ -18,6 +18,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chatbot Settings - Controlled by Engageio
+  // Placeholder for server-side config from Engageio
+  const ENABLE_CHATBOT_SETTINGS = process.env.VITE_ENABLE_CHATBOT_SETTINGS === 'true' || true; // Default to true for development
+
+  if (ENABLE_CHATBOT_SETTINGS) {
+    app.get('/api/chatbot-settings', isAuthenticated, async (req: Request, res: Response) => {
+      try {
+        // @ts-ignore - Assume storage.getChatbotSettings will be added
+        const settings = await storage.getChatbotSettings();
+        res.json(settings || {}); // Return empty object if no settings found
+      } catch (error) {
+        console.error('Error fetching chatbot settings:', error);
+        res.status(500).json({ message: 'Failed to fetch chatbot settings' });
+      }
+    });
+
+    app.patch('/api/chatbot-settings', isAuthenticated, async (req: Request, res: Response) => {
+      try {
+        const updates = req.body;
+
+        // Basic validation for chatbotTone
+        if (updates.chatbotTone && !['Friendly', 'Professional', 'Clinical', 'Casual'].includes(updates.chatbotTone)) {
+          return res.status(400).json({ message: 'Invalid chatbot tone value.' });
+        }
+
+        // @ts-ignore - Assume storage.updateChatbotSettings will be added
+        const updatedSettings = await storage.updateChatbotSettings(updates);
+        res.json(updatedSettings);
+      } catch (error) {
+        console.error('Error updating chatbot settings:', error);
+        res.status(500).json({ message: 'Failed to update chatbot settings' });
+      }
+    });
+  }
+
   // Dashboard stats
   app.get('/api/dashboard/stats', async (req: Request, res: Response) => {
     try {
@@ -41,50 +76,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Consultations endpoint - matches your chatbot's URL (no auth required for webhooks)
   app.post('/api/webhook/consultation', skipAuthForWebhook, async (req: Request, res: Response) => {
     try {
-      console.log('✅ Received consultation from chatbot:', JSON.stringify(req.body, null, 2));
-      console.log('DEBUG - patient_name field:', req.body.patient_name);
-      console.log('DEBUG - name field:', req.body.name);
-      console.log('DEBUG - all keys:', Object.keys(req.body));
-      
-      // Map based on your actual chatbot's simple data structure
-      const mappedData = {
-        name: req.body.patient_name || 'Unknown Patient',
-        email: req.body.email || null, 
-        phone: req.body.phone || null,
-        preferred_clinic: req.body.clinic_location || null,
-        issue_category: req.body.issue_type || 'General consultation',
-        issue_specifics: req.body.pain_presence || req.body.nail_issue_details || req.body.skin_issue_general || null,
-        pain_duration: req.body.pain_duration || null,
-        pain_severity: req.body.pain_severity || null,
-        additional_info: req.body.symptom_description || null,
-        previous_treatment: req.body.treatment_history || null,
-        has_image: req.body.image_file_url ? 'Yes' : 'No',
-        image_path: req.body.image_file_url || null,
-        image_analysis: req.body.image_analysis_text || null,
-        symptom_description: req.body.symptom_description || null,
-        symptom_analysis: req.body.image_analysis_text || null,
-        conversation_log: req.body
+      const consultationPayload = req.body; // Directly use the payload from the chatbot
+console.log('Received consultation payload:', JSON.stringify(req.body, null, 2));
+      console.log('✅ Received consultation from chatbot:', JSON.stringify(consultationPayload, null, 2));
+
+      // The chatbot now sends a more detailed and structured payload.
+      // We will use fields from this new structure directly.
+
+      // Create consultation record using the new payload structure
+      // Ensure your storage.createConsultation can handle this structure
+      // or adapt the fields passed to it.
+      const consultationDataForDb = {
+        name: consultationPayload.name || 'Unknown Patient',
+        email: consultationPayload.email || null,
+        phone: consultationPayload.phone || null,
+        preferred_clinic: consultationPayload.preferredClinic || null,
+        issue_category: consultationPayload.issueCategory || 'General consultation',
+        // Map other relevant fields from consultationPayload to your DB schema for consultations
+        // For example:
+        issue_specifics: consultationPayload.nailSpecifics || consultationPayload.painSpecifics || consultationPayload.skinSpecifics || consultationPayload.structuralSpecifics || null,
+        symptom_description: consultationPayload.symptomDescription || null,
+        previous_treatment: consultationPayload.previousTreatment || null,
+        has_image: consultationPayload.hasImage || 'No', // 'yes' or 'no'
+        image_path: consultationPayload.imagePath || null, // This will be base64 data
+        image_analysis: consultationPayload.imageAnalysis || null,
+        calendar_booking: consultationPayload.calendarBooking || null,
+        booking_confirmation: consultationPayload.bookingConfirmation || null,
+        final_question: consultationPayload.finalQuestion || null,
+        additional_help: consultationPayload.additionalHelp || null,
+        emoji_survey: consultationPayload.emojiSurvey || null,
+        survey_response: consultationPayload.surveyResponse || null,
+        created_at: consultationPayload.createdAt ? new Date(consultationPayload.createdAt) : new Date(),
+        conversation_log: consultationPayload.conversationLog || [],
+        completed_steps: consultationPayload.completedSteps || []
       };
       
-      console.log('Mapped consultation data:', mappedData);
-      const consultationRecord = await storage.createConsultation(mappedData);
+      console.log('Data for DB (consultation):', consultationDataForDb);
+      const consultationRecord = await storage.createConsultation(consultationDataForDb);
 
       console.log('Converting consultation to patient and assessment records...');
       
       // Convert consultation to patient record for the main portal
       const patientData = {
-        name: req.body.patient_name || 'Unknown Patient',
-        email: req.body.email || null,
-        phone: req.body.phone || null,
+        name: consultationPayload.name || 'Unknown Patient',
+        email: consultationPayload.email || null,
+        phone: consultationPayload.phone || null,
       };
       
       console.log('DEBUG - patientData being created:', patientData);
 
       // Check if patient already exists
       let patientRecord = null;
-      if (req.body.email) {
+      if (consultationPayload.email) {
         try {
-          patientRecord = await storage.getPatientByEmail(req.body.email);
+          patientRecord = await storage.getPatientByEmail(consultationPayload.email);
         } catch (error) {
           console.log('Patient lookup failed, will create new patient');
         }
@@ -103,13 +148,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create assessment from consultation for analytics and dashboard
+      // Determine risk level based on available data; this might need adjustment
+      // For example, if 'pain_severity' is not directly in the new payload,
+      // you might infer risk from 'symptomDescription' or 'issueCategory'.
+      // For now, let's assume a default or derive it if possible.
+      let riskLevel = 'medium'; // Default risk level
+      // Example: if (consultationPayload.symptomDescription && consultationPayload.symptomDescription.toLowerCase().includes('severe')) {
+      //   riskLevel = 'high';
+      // }
+
       const assessmentData = {
         patientId: patientRecord.id,
-        primaryConcern: req.body.issue_category || req.body.issue_type || 'General consultation',
-        riskLevel: req.body.pain_severity && parseInt(req.body.pain_severity) >= 7 ? 'high' : 'medium',
+        primaryConcern: consultationPayload.issueCategory || 'General consultation',
+        riskLevel: riskLevel, // Adjust as needed based on new payload
         status: 'completed',
         completedAt: new Date(),
-        clinicLocation: req.body.preferred_clinic || null,
+        clinicLocation: consultationPayload.preferredClinic || null,
       };
 
       console.log('Creating assessment from consultation:', assessmentData);
@@ -123,17 +177,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create condition record if issue category exists
-      if (req.body.issue_category) {
+      if (consultationPayload.issueCategory) {
         try {
           const existingConditions = await storage.getConditions();
-          let condition = existingConditions.find(c => 
-            c.name.toLowerCase() === req.body.issue_category.toLowerCase()
+          let condition = existingConditions.find(c =>
+            c.name.toLowerCase() === consultationPayload.issueCategory.toLowerCase()
           );
           
           if (!condition) {
             condition = await storage.createCondition({
-              name: req.body.issue_category,
-              description: req.body.issue_specifics || ''
+              name: consultationPayload.issueCategory,
+              description: consultationPayload.nailSpecifics || consultationPayload.painSpecifics || consultationPayload.skinSpecifics || consultationPayload.structuralSpecifics || ''
             });
           }
         } catch (error) {
@@ -142,8 +196,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Broadcast updates to all connected admin users
-      if (typeof (global as any).broadcastToClients === 'function') {
-        (global as any).broadcastToClients({
+      if (typeof (globalThis as any).broadcastToClients === 'function') {
+        (globalThis as any).broadcastToClients({
           type: 'new_assessment',
           data: {
             patientId: patientRecord.id,
@@ -155,8 +209,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      res.status(200).json({ 
-        success: true, 
+      res.status(200).json({
+        success: true,
         message: 'Consultation received and processed successfully',
         consultationId: consultationRecord.id,
         patientId: patientRecord.id,
@@ -165,9 +219,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error) {
       console.error('❌ Error processing chatbot consultation:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to process consultation data' 
+      res.status(500).json({
+        success: false,
+        message: 'Failed to process consultation data'
       });
     }
   });
@@ -259,14 +313,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       clients.delete(ws);
     });
     
-    ws.on('error', (error) => {
+    ws.on('error', (error: Error) => {
       console.error('WebSocket error:', error);
       clients.delete(ws);
     });
   });
   
   // Global function to broadcast messages to all connected clients
-  (global as any).broadcastToClients = (message: any) => {
+  (globalThis as any).broadcastToClients = (message: any) => {
     const messageStr = JSON.stringify(message);
     clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
