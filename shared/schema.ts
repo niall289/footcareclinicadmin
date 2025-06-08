@@ -9,10 +9,15 @@ import {
   integer,
   boolean,
   primaryKey,
+  pgEnum
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
+// Basic validation schemas
+export const nameSchema = z.string().min(2, { message: "Name must be at least 2 characters long." });
+export const phoneSchema = z.string().min(10, { message: "Phone number must be at least 10 digits." }).max(15, { message: "Phone number cannot exceed 15 digits." });
+export const emailSchema = z.string().email({ message: "Invalid email address." });
 
 // Session storage table for Replit Auth
 export const sessions = pgTable(
@@ -154,17 +159,34 @@ export const consultations = pgTable("consultations", {
   preferred_clinic: text("preferred_clinic"),
   issue_category: text("issue_category"),
   issue_specifics: text("issue_specifics"),
-  pain_duration: text("pain_duration"),
-  pain_severity: text("pain_severity"),
-  additional_info: text("additional_info"),
+  symptom_description: text("symptom_description"),
   previous_treatment: text("previous_treatment"),
   has_image: text("has_image"),
   image_path: text("image_path"),
   image_analysis: text("image_analysis"),
-  symptom_description: text("symptom_description"),
-  symptom_analysis: text("symptom_analysis"),
+  calendar_booking: text("calendar_booking"),
+  booking_confirmation: text("booking_confirmation"),
+  final_question: text("final_question"),
+  additional_help: text("additional_help"),
+  emoji_survey: text("emoji_survey"),
+  survey_response: text("survey_response"),
   conversation_log: jsonb("conversation_log"),
+  completed_steps: jsonb("completed_steps"),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Enum for Chatbot Tone
+export const chatbotToneEnum = pgEnum('chatbot_tone', ['Friendly', 'Professional', 'Clinical', 'Casual']);
+
+// Chatbot Settings table
+export const chatbotSettings = pgTable("chatbot_settings", {
+  id: serial("id").primaryKey(), // Assuming a single row for settings
+  welcomeMessage: text("welcome_message").default("Hello! How can I help you with your foot care needs today?"),
+  botDisplayName: varchar("bot_display_name").default("Fiona - FootCare Assistant"),
+  ctaButtonLabel: varchar("cta_button_label").default("Ask Fiona"),
+  chatbotTone: chatbotToneEnum("chatbot_tone").default("Friendly"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Define relations
@@ -202,10 +224,7 @@ export const assessmentsRelations = relations(assessments, ({ one, many }) => ({
     references: [patients.id],
   }),
   responses: many(responses),
-  conditions: many(assessmentConditions, {
-    fields: [assessments.id],
-    references: [assessmentConditions.assessmentId],
-  }),
+  conditions: many(assessmentConditions), // Corrected: Join table handles the linking
   clinic: one(clinics, {
     fields: [assessments.clinicLocation],
     references: [clinics.id], 
@@ -227,13 +246,10 @@ export const questionsRelations = relations(questions, ({ many }) => ({
   responses: many(responses),
 }));
 
-export const conditionsRelations = relations(conditions, ({ many }) => ({
-  assessments: many(assessmentConditions, {
-    fields: [conditions.id],
-    references: [assessmentConditions.conditionId],
-  }),
-}));
 
+export const conditionsRelations = relations(conditions, ({ many }) => ({
+  assessments: many(assessmentConditions), // Corrected: Join table handles the linking
+}));
 export const assessmentConditionsRelations = relations(assessmentConditions, ({ one }) => ({
   assessment: one(assessments, {
     fields: [assessmentConditions.assessmentId],
@@ -289,6 +305,18 @@ export const insertClinicSchema = createInsertSchema(clinics).pick({
   email: true,
   isActive: true,
 });
+export const insertChatbotSettingsSchema = createInsertSchema(chatbotSettings, {
+  // Override specific fields if needed, e.g., for custom validation with Zod
+  welcomeMessage: z.string().min(10, { message: "Welcome message must be at least 10 characters long." }).optional(),
+  botDisplayName: z.string().min(3, { message: "Bot display name must be at least 3 characters long." }).optional(),
+  ctaButtonLabel: z.string().min(3, { message: "CTA button label must be at least 3 characters long." }).optional(),
+  // chatbotTone will be validated by the enum
+}).pick({
+  welcomeMessage: true,
+  botDisplayName: true,
+  ctaButtonLabel: true,
+  chatbotTone: true,
+});
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;
@@ -339,3 +367,6 @@ export type FollowUpWithPatient = FollowUp & { patient: Patient };
 export const insertConsultationSchema = createInsertSchema(consultations);
 export type InsertConsultation = z.infer<typeof insertConsultationSchema>;
 export type Consultation = typeof consultations.$inferSelect;
+
+export type InsertChatbotSettings = z.infer<typeof insertChatbotSettingsSchema>;
+export type ChatbotSettings = typeof chatbotSettings.$inferSelect;

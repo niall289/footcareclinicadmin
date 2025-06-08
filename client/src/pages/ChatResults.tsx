@@ -34,19 +34,16 @@ export default function ChatResults() {
           : undefined;
 
   // Fetch assessments with pagination and filters - use patients endpoint which has the correct data structure
-  const { data: rawData, isLoading } = useQuery<{
-    assessments: any[];
-    pagination: any;
-  }>({
+  const { data: rawData, isLoading } = useQuery<any[]>({
     queryKey: [
-      "/api/patients",
+      "/api/consultations",
       {
         page,
         limit,
         search: filters.search,
         condition: filters.condition,
-        startDate: filters.startDate?.toISOString?.(),
-        endDate: filters.endDate?.toISOString?.(),
+        startDate: filters.startDate,
+        endDate: filters.endDate,
         status: statusFilter,
       },
     ],
@@ -54,8 +51,8 @@ export default function ChatResults() {
   
   // Transform the data to match expected format
   const data = rawData ? {
-    assessments: rawData.assessments || [],
-    pagination: rawData.pagination || { total: 0, page: 1, limit: 10, pages: 1 }
+    assessments: rawData || [],
+    pagination: { total: rawData.length, page: 1, limit: rawData.length, pages: 1 }
   } : undefined;
 
   // Fetch flagged responses summary
@@ -131,7 +128,7 @@ export default function ChatResults() {
           <ResponseAnalysisCard 
             title="Completed Assessments"
             icon="ri-check-line"
-            value={flaggedData?.completedAssessments || 0}
+            value={flaggedData?.completedAssessments?.count || 0}
             description="Fully answered sessions"
             isLoading={isLoadingFlagged}
             color="green"
@@ -149,7 +146,7 @@ export default function ChatResults() {
           <ResponseAnalysisCard 
             title="Flagged Responses"
             icon="ri-flag-line"
-            value={flaggedData?.flaggedResponses || 0}
+            value={flaggedData?.flaggedResponses?.count || 0}
             description="Responses needing attention"
             isLoading={isLoadingFlagged}
             color="red"

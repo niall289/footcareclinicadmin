@@ -13,6 +13,7 @@ import ChatResults from "@/pages/ChatResults";
 import Consultations from "@/pages/Consultations";
 import Communications from "@/pages/Communications";
 import Analytics from "@/pages/Analytics";
+import ChatbotSettingsPage from "@/pages/ChatbotSettings"; // Added import
 import Layout from "@/components/Layout";
 import PatientDetails from "@/pages/PatientDetails";
 
@@ -45,6 +46,7 @@ function Router() {
         <Route path="/consultations" component={Consultations} />
         <Route path="/communications" component={Communications} />
         <Route path="/analytics" component={Analytics} />
+        <Route path="/chatbot-settings" component={ChatbotSettingsPage} /> {/* Added route */}
         <Route component={NotFound} />
       </Switch>
     </Layout>

@@ -9,6 +9,10 @@ import { queryClient } from "@/lib/queryClient";
 import fionaImage from "../assets/fiona.png";
 import logoImage from "../assets/logo.png";
 
+// Placeholder for server-side config from Engageio, exposed to frontend
+// In a real app, this would come from process.env or an API call
+const ENABLE_CHATBOT_SETTINGS_VIEW = import.meta.env.VITE_ENABLE_CHATBOT_SETTINGS === 'true' || true; // Default to true for development
+
 interface SidebarProps {
   className?: string;
   user?: any;
@@ -60,6 +64,17 @@ export default function Sidebar({ className, user, onClose }: SidebarProps) {
     { name: "Analytics", href: "/analytics", icon: "ri-line-chart-line", emoji: "📊" },
   ];
 
+  const conditionalNavigation = [...navigation];
+
+  if (ENABLE_CHATBOT_SETTINGS_VIEW) {
+    conditionalNavigation.push({
+      name: "Chatbot Settings",
+      href: "/chatbot-settings",
+      icon: "ri-robot-2-line", // Example icon, replace if needed
+      emoji: "⚙️", // Example emoji
+    });
+  }
+
   return (
     <aside className={cn("w-64 bg-gradient-to-b from-white to-[hsl(186,76%,99%)] dark:from-neutral-900 dark:to-neutral-800 shadow-xl border-r border-neutral-200 dark:border-neutral-700", className)}>
       <div className="flex flex-col h-full overflow-y-auto">
@@ -89,7 +104,7 @@ export default function Sidebar({ className, user, onClose }: SidebarProps) {
 
         <nav className="flex-1 py-6 px-3">
           <div className="space-y-2">
-            {navigation.map((item) => {
+            {conditionalNavigation.map((item) => {
               const isActive = location === item.href;
               return (
                 <Link
